@@ -56,9 +56,6 @@ jobs:
           # Apply database migrations
           python3 manage.py migrate
 
-          # Kill the existing Django development server process
-          pkill -f "manage.py runserver"
-
           # Start the Django development server
           nohup python3 manage.py runserver 0.0.0.0:8000 &
 

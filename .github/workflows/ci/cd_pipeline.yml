@@ -14,7 +14,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # Step 2: Deploy to EC2 by pushing code changes to the repo
+    # Step 2: Deploy to EC2 by pushing code changes to the repository
     - name: Deploy to EC2
       uses: appleboy/ssh-action@master
       with:

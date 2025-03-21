@@ -31,7 +31,7 @@ jobs:
 
           # Remove old code, including hidden files
           rm -rf .[^.]* *
-          
+
           # Pull the latest code from the repository
           git clone https://github.com/N-JK/freshfoodtest.git .
 

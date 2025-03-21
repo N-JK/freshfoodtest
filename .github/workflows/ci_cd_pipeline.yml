@@ -14,7 +14,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    # Step 2: Deploy to EC2 by pushing code changes to the repository
+    # Step 2: Deploy to EC2
     - name: Deploy to EC2
       uses: appleboy/ssh-action@master
       with:
@@ -31,7 +31,7 @@ jobs:
           # Pull the latest code from the repository
           git clone https://github.com/N-JK/freshfoodtest.git .
 
-          # Activate the virtual environment
+          # Create and activate the virtual environment
           python3 -m venv venv
           source venv/bin/activate
 
@@ -39,16 +39,16 @@ jobs:
           pip install -r requirements.txt
 
           # Collect static files
-          python manage.py collectstatic --noinput
+          python3 manage.py collectstatic --noinput
 
           # Apply database migrations
-          python manage.py migrate
+          python3 manage.py migrate
 
           # Kill the existing Django development server process
           pkill -f "manage.py runserver"
 
           # Start the Django development server
-          nohup python manage.py runserver 0.0.0.0:8000 &
+          nohup python3 manage.py runserver 0.0.0.0:8000 &
 
           # Optionally, clean up any unnecessary files
           find . -name "*.pyc" -delete

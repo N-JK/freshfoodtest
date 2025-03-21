@@ -29,7 +29,7 @@ jobs:
           rm -rf *
 
           # Pull the latest code from the repository
-          git clone https://github.com//yourrepository.git .
+          git clone https://github.com/N-JK/freshfoodtest.git .
 
           # Activate the virtual environment
           source venv/bin/activate

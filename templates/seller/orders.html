@@ -1,0 +1,239 @@
+{% extends 'seller/layouts/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+.orders-header {
+    background: #fff;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.orders-header .form-control {
+    border-radius: 10px;
+    border: 1px solid #E2E8F0;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+}
+
+.orders-header .form-control:focus {
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+}
+
+.order-card {
+    background: #fff;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+    border: 1px solid #E2E8F0;
+}
+
+.order-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: #F8FAFC;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.order-id {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1E293B;
+}
+
+.order-date {
+    color: #64748B;
+    font-size: 0.9rem;
+}
+
+.order-body {
+    padding: 1.5rem;
+}
+
+.order-info {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) auto;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.info-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: #64748B;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 1rem;
+    color: #1E293B;
+    font-weight: 500;
+}
+
+.order-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-paid {
+    background-color: #DCFCE7;
+    color: #166534;
+}
+
+.status-cancelled {
+    background-color: #FEE2E2;
+    color: #991B1B;
+}
+
+.status-delivered {
+    background-color: #DBEAFE;
+    color: #1E40AF;
+}
+
+.status-pending {
+    background-color: #FEF3C7;
+    color: #92400E;
+}
+
+.view-details {
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    background: #4F46E5;
+    color: white;
+    font-weight: 500;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.view-details:hover {
+    background: #4338CA;
+    transform: translateY(-1px);
+}
+
+.order-address {
+    font-size: 0.9rem;
+    color: #64748B;
+}
+
+.payment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    background: #F1F5F9;
+    color: #475569;
+}
+
+.payment-badge i {
+    color: #10B981;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Orders Header -->
+    <div class="orders-header">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <select class="form-select" id="orderStatus">
+                    <option value="">All Orders</option>
+                    <option value="pending">Pending</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="date" class="form-control" id="dateRange">
+            </div>
+            <div class="col-md-4">
+                <input type="search" class="form-control" placeholder="Search by Order ID or Customer name...">
+            </div>
+            <div class="col-md-2">
+                <select class="form-select" id="sortBy">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders List -->
+    <div class="orders-list">
+        {% for order in orders %}
+        <div class="order-card">
+            <div class="order-header">
+                <div>
+                    <span class="order-id">{{ order.id }}</span>
+                    <span class="order-date ms-3">{{ order.created_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="order-status status-{{ order.order_status|lower }}">
+                    {{ order.get_order_status_display }}
+                </div>
+            </div>
+            <div class="order-body">
+                <div class="order-info">
+                    <div class="info-group">
+                        <span class="info-label">Customer</span>
+                        <span class="info-value">{{ order.user.get_full_name }}</span>
+                        <span class="text-muted">{{ order.user.email }}</span>
+                    </div>
+                    <div class="info-group">
+                        <span class="info-label">Shipping Address</span>
+                        <span class="info-value">{{ order.address.full_name }}</span>
+                        <span class="order-address">
+                            {{ order.address.address_line1 }}<br>
+                            {{ order.address.city }}, {{ order.address.pincode }}
+                        </span>
+                    </div>
+                    <div class="info-group">
+                        <span class="info-label">Amount</span>
+                        <span class="info-value">₹{{ order.total_amount }}</span>
+                        <span class="payment-badge">
+                            <i class="fas fa-check-circle"></i>
+                            {{ order.get_payment_status_display }}
+                        </span>
+                    </div>
+                    <div class="text-end">
+                        <button class="view-details" onclick="location.href='{% url 'seller:order_detail' order.id %}'">
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add your JavaScript for filtering and sorting here
+});
+</script>
+{% endblock %}
+{% endblock %}

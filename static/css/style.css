@@ -1,0 +1,179 @@
+:root {
+    --primary-green: #2ecc71;
+    --secondary-green: #27ae60;
+    --accent-orange: #e67e22;
+    --light-green: #ebf7ed;
+    --cream: #fff9f0;
+    --dark-text: #2c3e50;
+    --light-text: #7f8c8d;
+}
+
+/* Global Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--dark-text);
+}
+
+/* Navbar Styles */
+.navbar-custom {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+    top: 0;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-green) !important;
+}
+
+.navbar-brand i {
+    margin-right: 0.5rem;
+}
+
+.nav-link {
+    font-weight: 500;
+    color: var(--dark-text) !important;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-link:hover {
+    color: var(--primary-green) !important;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--primary-green);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+    width: 80%;
+}
+
+.login-btn {
+    background: var(--primary-green);
+    color: white !important;
+    border-radius: 30px;
+    padding: 0.5rem 1.5rem !important;
+}
+
+.login-btn:hover {
+    background: var(--secondary-green);
+    transform: translateY(-2px);
+}
+
+/* Footer Styles */
+.footer {
+    background: var(--dark-text);
+    color: white;
+    padding: 4rem 0 2rem;
+}
+
+.footer h5 {
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.footer ul li {
+    margin-bottom: 0.8rem;
+}
+
+.footer a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer a:hover {
+    color: var(--primary-green);
+}
+
+/* Buttons */
+.btn-primary-custom {
+    background: var(--primary-green);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 0.8rem 2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary-custom:hover {
+    background: var(--secondary-green);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+}
+
+.btn-outline-custom {
+    background: transparent;
+    color: var(--primary-green);
+    border: 2px solid var(--primary-green);
+    border-radius: 30px;
+    padding: 0.8rem 2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-outline-custom:hover {
+    background: var(--primary-green);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    padding: 0.5rem;
+}
+
+.dropdown-item {
+    padding: 0.7rem 1.5rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background: var(--light-green);
+    color: var(--primary-green);
+}
+
+.dropdown-item i {
+    width: 20px;
+    text-align: center;
+    margin-right: 0.5rem;
+}
+
+/* Utility Classes */
+.section-padding {
+    padding: 5rem 0;
+}
+
+.text-primary-custom {
+    color: var(--primary-green) !important;
+}
+
+.bg-light-custom {
+    background: var(--light-green);
+}
+
+.shadow-custom {
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}

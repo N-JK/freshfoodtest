@@ -1,0 +1,298 @@
+<!-- Edit Product Modal -->
+<div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <!-- Modal Header -->
+            <div class="modal-header bg-gradient-primary text-white border-0 py-3">
+                <h5 class="modal-title" id="editProductModalLabel">
+                    <i class="fas fa-edit me-2"></i>Edit Product
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body p-4">
+                <form id="editProductForm" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" id="editProductId">
+
+                    <!-- Product Image Preview -->
+                    <div class="mb-4 text-center product-image-preview">
+                        <div class="position-relative d-inline-block">
+                            <img id="currentProductImage" src="" alt="Product Image" class="img-preview rounded-3 mb-2">
+                            <div class="image-overlay">
+                                <label for="newProductImage" class="btn btn-light btn-sm">
+                                    <i class="fas fa-camera me-1"></i>Change Image
+                                </label>
+                            </div>
+                        </div>
+                        <input type="file" class="d-none" id="newProductImage" name="image" accept="image/*">
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Product Name -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="editProductName" name="name" required>
+                                <label for="editProductName">Product Name</label>
+                                <div class="invalid-feedback">Please enter a product name.</div>
+                            </div>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="editProductPrice" name="price" step="0.01" required>
+                                <label for="editProductPrice">Price ($)</label>
+                                <div class="invalid-feedback">Please enter a valid price.</div>
+                            </div>
+                        </div>
+
+                        <!-- Category -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <select class="form-select" id="editProductCategory" name="category" required>
+                                    <option value="">Select Category</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="editProductCategory">Category</label>
+                                <div class="invalid-feedback">Please select a category.</div>
+                            </div>
+                        </div>
+
+                        <!-- Supplier -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <select class="form-select" id="editProductSupplier" name="supplier" required>
+                                    <option value="">Select Supplier</option>
+                                    {% for supplier in suppliers %}
+                                    <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="editProductSupplier">Supplier</label>
+                                <div class="invalid-feedback">Please select a supplier.</div>
+                            </div>
+                        </div>
+
+                        <!-- Stock -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" id="editProductStock" name="stock" required>
+                                <label for="editProductStock">Stock</label>
+                                <div class="invalid-feedback">Please enter stock quantity.</div>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <select class="form-select" id="editProductStatus" name="is_active">
+                                    <option value="true">Active</option>
+                                    <option value="false">Inactive</option>
+                                </select>
+                                <label for="editProductStatus">Status</label>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <textarea class="form-control" id="editProductDescription" name="description" style="height: 100px" required></textarea>
+                                <label for="editProductDescription">Description</label>
+                                <div class="invalid-feedback">Please enter a description.</div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer border-0 pt-0 pb-3 px-4">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="submit" form="editProductForm" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>Save Changes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.modal.fade .modal-dialog {
+    transform: scale(0.8);
+    transition: transform 0.3s ease-in-out;
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1);
+}
+
+.modal-content {
+    overflow: hidden;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(45deg, #4e73df 0%, #224abe 100%);
+}
+
+.img-preview {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.product-image-preview:hover .image-overlay {
+    opacity: 1;
+}
+
+.product-image-preview:hover .img-preview {
+    border-color: #4e73df;
+}
+
+.form-floating {
+    position: relative;
+}
+
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.1);
+}
+
+.btn {
+    border-radius: 10px;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: #4e73df;
+    border: none;
+}
+
+.btn-primary:hover {
+    background: #224abe;
+    transform: translateY(-2px);
+}
+
+.btn-light {
+    background: #f8f9fc;
+    border: 2px solid #e9ecef;
+}
+
+.btn-light:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal.show .modal-content > * {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.modal.show .modal-header {
+    animation-delay: 0s;
+}
+
+.modal.show .modal-body {
+    animation-delay: 0.1s;
+}
+
+.modal.show .modal-footer {
+    animation-delay: 0.2s;
+}
+
+/* Form validation styles */
+.was-validated .form-control:valid, .form-control.is-valid {
+    border-color: #1cc88a;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%231cc88a' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+}
+
+.was-validated .form-control:invalid, .form-control.is-invalid {
+    border-color: #e74a3b;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23e74a3b' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23e74a3b' stroke='none'/%3e%3c/svg%3e");
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Image preview functionality
+    const imageInput = document.getElementById('newProductImage');
+    const imagePreview = document.getElementById('currentProductImage');
+
+    imageInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Form validation
+    const form = document.getElementById('editProductForm');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Floating labels animation
+    const formControls = document.querySelectorAll('.form-control, .form-select');
+    formControls.forEach(control => {
+        control.addEventListener('focus', () => {
+            control.parentElement.classList.add('focused');
+        });
+        control.addEventListener('blur', () => {
+            if (!control.value) {
+                control.parentElement.classList.remove('focused');
+            }
+        });
+    });
+});
+</script>

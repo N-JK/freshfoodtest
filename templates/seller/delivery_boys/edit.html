@@ -1,0 +1,97 @@
+{% extends 'seller/layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Edit Delivery Boy</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Name <span class="text-danger">*</span></label>
+                                <input type="text" name="name" class="form-control" value="{{ delivery_boy.name }}" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone <span class="text-danger">*</span></label>
+                                <input type="tel" name="phone" class="form-control" value="{{ delivery_boy.phone }}" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" value="{{ delivery_boy.email|default:'' }}">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Assigned Location <span class="text-danger">*</span></label>
+                                <select name="location" class="form-select" required>
+                                    <option value="">Select Location</option>
+                                    {% for location in available_locations %}
+                                    <option value="{{ location.id }}" {% if location.id == delivery_boy.assigned_location.id %}selected{% endif %}>
+                                        {{ location.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Address <span class="text-danger">*</span></label>
+                                <textarea name="address" class="form-control" rows="3" required>{{ delivery_boy.address }}</textarea>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Vehicle Type <span class="text-danger">*</span></label>
+                                <input type="text" name="vehicle_type" class="form-control" value="{{ delivery_boy.vehicle_type }}" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Vehicle Number <span class="text-danger">*</span></label>
+                                <input type="text" name="vehicle_number" class="form-control" value="{{ delivery_boy.vehicle_number }}" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Status</label>
+                                <select name="status" class="form-select">
+                                    {% for status, display in delivery_boy.AVAILABILITY_STATUS %}
+                                    <option value="{{ status }}" {% if status == delivery_boy.status %}selected{% endif %}>
+                                        {{ display }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Profile Photo</label>
+                                <input type="file" name="profile_photo" class="form-control" accept="image/*">
+                                {% if delivery_boy.profile_photo %}
+                                <small class="text-muted">Current: {{ delivery_boy.profile_photo.name }}</small>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">ID Proof</label>
+                                <input type="file" name="id_proof" class="form-control" accept="image/*">
+                                {% if delivery_boy.id_proof %}
+                                <small class="text-muted">Current: {{ delivery_boy.id_proof.name }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="text-end mt-4">
+                            <a href="{% url 'seller:delivery_boys' %}" class="btn btn-light me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Update Delivery Boy</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

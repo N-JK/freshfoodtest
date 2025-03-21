@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Filters</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" id="filter-form">
+                        <input type="hidden" name="q" value="{{ request.GET.q }}">
+                        
+                        <!-- Category Filter -->
+                        <div class="mb-4">
+                            <h6>Categories</h6>
+                            {% for category in categories %}
+                                <div class="form-check">
+                                    <input class="form-check-input filter-input" type="checkbox" name="category" 
+                                           value="{{ category.id }}" id="category_{{ category.id }}"
+                                           {% if category.id|stringformat:"i" in request.GET.getlist('category') %}checked{% endif %}>
+                                    <label class="form-check-label" for="category_{{ category.id }}">
+                                        {{ category.name }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Price Range Filter -->
+                        <div class="mb-4">
+                            <h6>Price Range</h6>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" class="form-control filter-input" name="min_price" 
+                                       placeholder="Min" value="{{ request.GET.min_price }}">
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" class="form-control filter-input" name="max_price" 
+                                       placeholder="Max" value="{{ request.GET.max_price }}">
+                            </div>
+                        </div>
+                        
+                        <!-- Sort By -->
+                        <div class="mb-4">
+                            <h6>Sort By</h6>
+                            <select class="form-select filter-input" name="sort">
+                                <option value="">Relevance</option>
+                                <option value="price_asc" {% if request.GET.sort == 'price_asc' %}selected{% endif %}>
+                                    Price: Low to High
+                                </option>
+                                <option value="price_desc" {% if request.GET.sort == 'price_desc' %}selected{% endif %}>
+                                    Price: High to Low
+                                </option>
+                                <option value="name_asc" {% if request.GET.sort == 'name_asc' %}selected{% endif %}>
+                                    Name: A to Z
+                                </option>
+                                <option value="name_desc" {% if request.GET.sort == 'name_desc' %}selected{% endif %}>
+                                    Name: Z to A
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Search Results -->
+        <div class="col-md-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4>Search Results for "{{ query }}"</h4>
+                <span class="text-muted">{{ products.count }} results found</span>
+            </div>
+            
+            {% if products %}
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    {% for product in products %}
+                        <div class="col">
+                            <div class="card h-100">
+                                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" 
+                                     style="height: 200px; object-fit: cover;">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ product.name }}</h5>
+                                    <p class="card-text">
+                                        <small class="text-muted">{{ product.category.name }}</small>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">₹{{ product.price }}</h6>
+                                        {% if product.is_in_stock %}
+                                            <span class="badge bg-success">In Stock</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Out of Stock</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="d-flex justify-content-between">
+                                        <form method="post" action="{% url 'buyer:add_to_cart' product.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-primary btn-sm" 
+                                                    {% if not product.is_in_stock %}disabled{% endif %}>
+                                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                                            </button>
+                                        </form>
+                                        <form method="post" action="{% url 'buyer:add_to_wishlist' product.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                <i class="fas fa-heart"></i> Wishlist
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                    <h5>No products found</h5>
+                    <p class="text-muted">Try adjusting your search or filter criteria</p>
+                    <a href="{% url 'home' %}" class="btn btn-primary mt-3">
+                        Browse All Products
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-submit form when filters change
+    document.querySelectorAll('.filter-input').forEach(input => {
+        input.addEventListener('change', function() {
+            document.getElementById('filter-form').submit();
+        });
+    });
+});
+</script>
+{% endblock %}

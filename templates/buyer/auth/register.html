@@ -1,0 +1,402 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% load socialaccount %}
+
+{% block extra_css %}
+<style>
+    /* Error Message Popup */
+    .error-popup {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: 400px;
+        width: 90%;
+        background: #FFFFFF;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        z-index: 1050;
+        display: flex;
+        align-items: center;
+        border-left: 4px solid #EA4335;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .error-popup.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .error-popup-icon {
+        margin-right: 15px;
+        color: #EA4335;
+        font-size: 24px;
+    }
+
+    .error-popup-content {
+        flex-grow: 1;
+    }
+
+    .error-popup-title {
+        font-weight: 600;
+        color: #2D3748;
+        margin-bottom: 5px;
+    }
+
+    .error-popup-message {
+        color: #718096;
+        font-size: 0.9rem;
+    }
+
+    .error-popup-close {
+        background: none;
+        border: none;
+        color: #718096;
+        cursor: pointer;
+        font-size: 20px;
+        padding: 0;
+        line-height: 1;
+    }
+
+    /* Or Divider Styles */
+    .or-divider {
+        display: flex;
+        align-items: center;
+        margin: 50px 0;
+    }
+
+    .or-line {
+        flex-grow: 1;
+        border: none;
+        height: 1px;
+        background-color: #E2E8F0;
+    }
+
+    .or-text {
+        margin: 0 10px;
+        color: #64748B;
+        font-weight: 500;
+    }
+
+    /* Google Button Styles */
+    .btn-google {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 1rem;
+        background: white;
+        color: #5F6368;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px;
+        font-weight: 500;
+        font-size: 1rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-google:hover {
+        background-color: #F5F5F5;
+        border-color: #D1D5DB;
+    }
+
+    .btn-google .google-logo {
+        margin-right: 10px;
+        width: 24px;
+        height: 24px;
+    }
+
+    /* Additional Custom Styles */
+    .login-footer {
+        text-align: center;
+        margin-top: 1.5rem;
+        color: #64748B;
+    }
+
+    .login-footer a {
+        color: #4F46E5;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s ease;
+    }
+
+    .login-footer a:hover {
+        color: #4338CA;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Error Popup -->
+<div id="errorPopup" class="error-popup">
+    <div class="error-popup-icon">
+        <i class="fas fa-exclamation-circle"></i>
+    </div>
+    <div class="error-popup-content">
+        <div class="error-popup-title">Error</div>
+        <div class="error-popup-message" id="errorPopupMessage"></div>
+    </div>
+    <button class="error-popup-close" onclick="closeErrorPopup()">
+        &times;
+    </button>
+</div>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">Create Account</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate action="{% url 'buyer:register' %}">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                                <div class="invalid-feedback">
+                                    Please enter your first name.
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                                <div class="invalid-feedback">
+                                    Please enter your last name.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                            <div class="invalid-feedback">
+                                Please enter a valid email address.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" pattern="[0-9]{10}" required>
+                            <div class="invalid-feedback">
+                                Please enter a valid 10-digit phone number.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                            <div class="invalid-feedback">
+                                Please choose a username.
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="password1" class="form-label">Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password1" name="password1" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword1">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please enter a password.
+                                </div>
+                                <div class="form-text">
+                                    Password must be at least 8 characters long and contain letters, numbers, and special characters.
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="password2" class="form-label">Confirm Password</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="password2" name="password2" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword2">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please confirm your password.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                            <label class="form-check-label" for="terms">
+                                I agree to the <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms & Conditions</a>
+                            </label>
+                            <div class="invalid-feedback">
+                                You must agree to the terms and conditions.
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Create Account</button>
+                        </div>
+                        
+                        <div class="or-divider">
+                            <hr class="or-line">
+                            <span class="or-text">OR</span>
+                            <hr class="or-line">
+                        </div>
+                    
+                        <a href="{% provider_login_url 'google' %}" class="btn-google">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48" class="google-logo me-2">
+                                <path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/>
+                                <path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.32-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/>
+                                <path fill="#FBBC05" d="M11.68 28.18c-1.11-3.3-1.11-6.88 0-10.18V12.3H4.34A20.11 20.11 0 0 0 2 24c0 3.24.77 6.3 2.34 9.07l7.34-5.89z"/>
+                                <path fill="#EA4335" d="M24 9.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 3.29 29.62 1 24 1 15.4 1 7.96 5.93 4.34 14.93l7.34 5.89c1.74-5.2 6.59-9.07 12.32-9.07z"/>
+                            </svg>
+                            Continue with Google
+                        </a>
+                    
+                        <div class="login-footer">
+                            <p>Already have an account? <a href="{% url 'buyer:login' %}">Login</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terms & Conditions Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Terms & Conditions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>1. Account Creation</h6>
+                <p>By creating an account, you agree to provide accurate and complete information.</p>
+                
+                <h6>2. Privacy</h6>
+                <p>We respect your privacy and will protect your personal information according to our privacy policy.</p>
+                
+                <h6>3. Orders and Payments</h6>
+                <p>You agree to pay for all orders placed through your account.</p>
+                
+                <h6>4. Delivery</h6>
+                <p>Delivery times may vary based on your location and product availability.</p>
+                
+                <h6>5. Returns and Refunds</h6>
+                <p>Please review our return policy for information about returns and refunds.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">I Understand</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const errorPopup = document.getElementById('errorPopup');
+    const errorPopupMessage = document.getElementById('errorPopupMessage');
+
+    // Function to show error popup
+    function showErrorPopup(message) {
+        errorPopupMessage.textContent = message;
+        errorPopup.classList.add('show');
+        
+        // Auto-hide after 3 seconds
+        setTimeout(closeErrorPopup, 3000);
+    }
+
+    // Function to close error popup
+    function closeErrorPopup() {
+        errorPopup.classList.remove('show');
+    }
+
+    // Check for form errors from Django
+    {% if form.errors %}
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+                (function() {
+                    showErrorPopup('{{ error|escapejs }}');
+                })();
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+
+    // Form validation
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+                
+                // Find the first invalid field
+                const firstInvalidField = form.querySelector(':invalid');
+                if (firstInvalidField) {
+                    // Show error popup with the first validation message
+                    const errorMessage = firstInvalidField.validationMessage;
+                    showErrorPopup(errorMessage);
+                }
+            }
+            
+            // Check if passwords match
+            const password1 = form.querySelector('#password1');
+            const password2 = form.querySelector('#password2');
+            if (password1.value !== password2.value) {
+                event.preventDefault();
+                showErrorPopup('Passwords do not match');
+                password2.setCustomValidity('Passwords do not match');
+                password2.reportValidity();
+            } else {
+                password2.setCustomValidity('');
+            }
+            
+            form.classList.add('was-validated');
+        }, false);
+    });
+
+    // Password visibility toggle
+    function setupPasswordToggle(passwordId, toggleId) {
+        const togglePassword = document.querySelector(toggleId);
+        const password = document.querySelector(passwordId);
+
+        togglePassword.addEventListener('click', function() {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            
+            const icon = this.querySelector('i');
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        });
+    }
+
+    setupPasswordToggle('#password1', '#togglePassword1');
+    setupPasswordToggle('#password2', '#togglePassword2');
+
+    // Password strength validation
+    const password1 = document.querySelector('#password1');
+    password1.addEventListener('input', function() {
+        const value = this.value;
+        const hasLetter = /[a-zA-Z]/.test(value);
+        const hasNumber = /[0-9]/.test(value);
+        const hasSpecial = /[!@#$%^&*]/.test(value);
+        const isLongEnough = value.length >= 8;
+
+        if (!(hasLetter && hasNumber && hasSpecial && isLongEnough)) {
+            this.setCustomValidity('Password must be at least 8 characters long and contain letters, numbers, and special characters');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+});
+</script>
+{% endblock %}

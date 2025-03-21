@@ -1,0 +1,269 @@
+{% extends 'admin_dashboard/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Restock Requests - Fresh Food Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin_products.css' %}">
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+
+<div class="restock-container">
+    <!-- Header -->
+    <div class="restock-header">
+        <h2>Restock Requests</h2>
+        
+        <!-- Pending Requests Counter -->
+        {% if pending_count %}
+        <div class="restock-alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>{{ pending_count }} pending restock request{{ pending_count|pluralize }}</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Low Stock Products Section -->
+    {% if low_stock_products %}
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Products Below Threshold
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table restock-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Supplier</th>
+                            <th>Current Stock</th>
+                            <th>Threshold</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in low_stock_products %}
+                        <tr>
+                            <td>
+                                <div class="restock-product">
+                                    <div class="restock-product-image">
+                                        {% if product.image %}
+                                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                                        {% else %}
+                                        <i class="fas fa-box"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="restock-product-info">
+                                        <h6>{{ product.name }}</h6>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ product.supplier.business_name }}</td>
+                            <td>
+                                <span class="badge bg-danger">{{ product.stock }}</span>
+                            </td>
+                            <td>{{ product.threshold }}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" 
+                                        onclick="createRestockRequest({{ product.id }}, '{{ product.name|escapejs }}')">
+                                    <i class="fas fa-plus me-2"></i>Send Request
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filters -->
+    <div class="restock-filters">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All</option>
+                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="approved" {% if request.GET.status == 'approved' %}selected{% endif %}>Approved</option>
+                    <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Supplier</label>
+                <select name="supplier" class="form-select">
+                    <option value="">All Suppliers</option>
+                    {% for supplier in suppliers %}
+                    <option value="{{ supplier.id }}" {% if request.GET.supplier == supplier.id|stringformat:"i" %}selected{% endif %}>
+                        {{ supplier.business_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-filter me-2"></i>Filter
+                </button>
+                {% if request.GET %}
+                <a href="{% url 'admin_dashboard:restock_requests' %}" class="btn btn-outline-secondary ms-2">
+                    <i class="fas fa-times me-2"></i>Clear
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Restock Requests Table -->
+    <div class="restock-table-card">
+        <div class="table-responsive">
+            <table class="table restock-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Supplier</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Requested At</th>
+                        <th>Last Updated</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request in restock_requests %}
+                    <tr>
+                        <td>
+                            <div class="restock-product">
+                                <div class="restock-product-image">
+                                    {% if request.product.image %}
+                                    <img src="{{ request.product.image.url }}" alt="{{ request.product.name }}">
+                                    {% else %}
+                                    <i class="fas fa-box"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="restock-product-info">
+                                    <h6>{{ request.product.name }}</h6>
+                                    <div class="stock-info">
+                                        Current Stock: {{ request.product.stock }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ request.product.supplier.business_name }}</td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="fw-medium">{{ request.quantity }}</span>
+                                <small class="text-muted">Target: {{ request.product.threshold }}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="restock-badge {{ request.status }}">
+                                {{ request.status|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span>{{ request.requested_at|date:"M d, Y H:i" }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span>{{ request.updated_at|date:"M d, Y H:i" }}</span>
+                                {% if request.status == 'completed' %}
+                                <small class="text-success">
+                                    <i class="fas fa-check me-1"></i>Restocked by supplier
+                                </small>
+                                {% elif request.status == 'rejected' %}
+                                <small class="text-danger">
+                                    <i class="fas fa-times me-1"></i>Rejected by supplier
+                                </small>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="restock-empty">
+                                <i class="fas fa-box"></i>
+                                <h5>No Restock Requests</h5>
+                                <p>All stock levels are currently adequate</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if restock_requests.has_other_pages %}
+    <nav aria-label="Restock requests pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if restock_requests.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ restock_requests.previous_page_number }}" aria-label="Previous">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in restock_requests.paginator.page_range %}
+            <li class="page-item {% if restock_requests.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if restock_requests.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ restock_requests.next_page_number }}" aria-label="Next">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function getCsrfToken() {
+    return document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+}
+
+async function createRestockRequest(productId, productName) {
+    const quantity = prompt(`Enter restock quantity for ${productName}:`);
+    if (!quantity || isNaN(quantity) || quantity <= 0) {
+        alert('Please enter a valid quantity');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/admin-dashboard/api/restock-requests/create/${productId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': await getCsrfToken()
+            },
+            body: JSON.stringify({ quantity: parseInt(quantity) })
+        });
+        
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || 'Failed to create restock request');
+        }
+        
+        location.reload();
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
+}
+</script>
+{% endblock %}

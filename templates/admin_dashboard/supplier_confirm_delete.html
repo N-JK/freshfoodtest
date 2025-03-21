@@ -1,0 +1,36 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3>{{ title }}</h3>
+        </div>
+        <div class="card-body">
+            <p class="lead">Are you sure you want to delete the supplier "{{ supplier.business_name }}"?</p>
+            <p>This action cannot be undone. All associated data will be permanently deleted.</p>
+            
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Supplier Details</h5>
+                    <ul class="list-unstyled">
+                        <li><strong>Business Name:</strong> {{ supplier.business_name }}</li>
+                        <li><strong>Contact Number:</strong> {{ supplier.contact_number }}</li>
+                        <li><strong>User:</strong> {{ supplier.user.username }}</li>
+                        <li><strong>Address:</strong> {{ supplier.address }}</li>
+                        <li><strong>Categories:</strong> {{ supplier.categories.all|join:", " }}</li>
+                        <li><strong>Locations:</strong> {{ supplier.locations.all|join:", " }}</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Confirm Delete</button>
+                <a href="{% url 'admin_dashboard:suppliers_list' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

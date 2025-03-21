@@ -1,0 +1,244 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% load buyer_tags %}
+
+{% block title %}Shopping Cart - Fresh Food{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Professional Toast Notifications - Same as wishlist */
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1100;
+    }
+
+    .toast {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        color: white;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.3s ease;
+        min-width: 250px;
+        position: relative;
+        margin-bottom: 10px;
+    }
+
+    .toast.show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .toast-success {
+        background-color: #28a745;
+    }
+
+    .toast-error {
+        background-color: #dc3545;
+    }
+
+    .toast-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 4px;
+        background-color: rgba(255,255,255,0.7);
+        width: 100%;
+        transform-origin: left;
+        animation: toast-progress 3s linear forwards;
+    }
+
+    @keyframes toast-progress {
+        0% { transform: scaleX(1); }
+        100% { transform: scaleX(0); }
+    }
+
+    .toast-icon {
+        margin-right: 12px;
+        font-size: 1.2rem;
+    }
+
+    .toast-close {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 1rem;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+
+    .toast-close:hover {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Shopping Cart</h2>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Hidden messages for toast conversion -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="d-none alert-message" 
+                 data-message="{{ message }}" 
+                 data-type="{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if cart_items %}
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                                <tr id="cart-item-{{ item.id }}">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: cover;" class="me-3">
+                                            <div>
+                                                <h6 class="mb-0">{{ item.product.name }}</h6>
+                                                <small class="text-muted">{{ item.product.unit }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>₹{{ item.product.price }}</td>
+                                    <td>
+                                        <form action="{% url 'buyer:update_cart' item.id %}" method="POST" class="update-quantity-form">
+                                            {% csrf_token %}
+                                            <div class="d-flex align-items-center">
+                                                <input type="number" name="quantity" value="{{ item.quantity }}" 
+                                                       min="1" max="{{ item.product.stock }}" 
+                                                       class="form-control form-control-sm" style="width: 70px;">
+                                                <button type="submit" class="btn btn-sm btn-outline-primary ms-2">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </td>
+                                    <td class="item-total">₹{{ item.product.price|multiply:item.quantity }}</td>
+                                    <td>
+                                        <form action="{% url 'buyer:remove_from_cart' item.id %}" method="POST" class="remove-item-form">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                <td colspan="2" id="cart-total"><strong>₹{{ total }}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-end mt-4">
+            <a href="{% url 'home:home' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Continue Shopping
+            </a>
+            <a href="{% url 'buyer:checkout' %}" class="btn btn-primary">
+                Proceed to Checkout <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+            <h3>Your cart is empty</h3>
+            <p class="text-muted">Browse our products and add items to your cart.</p>
+            <a href="{% url 'home:home' %}" class="btn btn-primary mt-3">
+                Start Shopping
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toast notification function
+    function showToast(message, type = 'info') {
+        const toastContainer = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type} show`;
+        
+        const iconMap = {
+            'success': 'fa-check-circle',
+            'error': 'fa-times-circle',
+            'warning': 'fa-exclamation-triangle',
+            'info': 'fa-info-circle'
+        };
+        const icon = iconMap[type] || 'fa-info-circle';
+
+        toast.innerHTML = `
+            <i class="fas ${icon} toast-icon"></i>
+            <span>${message}</span>
+            <button class="toast-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="toast-progress"></div>
+        `;
+
+        toastContainer.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const alertMessages = document.querySelectorAll('.alert-message');
+        
+        alertMessages.forEach(message => {
+            const text = message.textContent.trim();
+            const type = message.getAttribute('data-type');
+            const typeMap = {
+                'success': 'success',
+                'error': 'error',
+                'warning': 'warning',
+                'info': 'info'
+            };
+            showToast(text, typeMap[type] || 'info');
+        });
+
+        // Existing form validation code
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('change', function() {
+                const max = parseInt(this.getAttribute('max'));
+                const value = parseInt(this.value);
+                if (value > max) {
+                    this.value = max;
+                    showToast(`Only ${max} units available in stock`, 'warning');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

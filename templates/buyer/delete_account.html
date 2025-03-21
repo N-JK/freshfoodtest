@@ -1,0 +1,214 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Delete Account - Fresh Food{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Professional Toast Notifications */
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1100;
+    }
+
+    .toast {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        color: white;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.3s ease;
+        min-width: 250px;
+        position: relative;
+        margin-bottom: 10px;
+    }
+
+    .toast.show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .toast-success {
+        background-color: #28a745;
+    }
+
+    .toast-error {
+        background-color: #dc3545;
+    }
+
+    .toast-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 4px;
+        background-color: rgba(255,255,255,0.7);
+        width: 100%;
+        transform-origin: left;
+        animation: toast-progress 3s linear forwards;
+    }
+
+    @keyframes toast-progress {
+        0% { transform: scaleX(1); }
+        100% { transform: scaleX(0); }
+    }
+
+    .toast-icon {
+        margin-right: 12px;
+        font-size: 1.2rem;
+    }
+
+    .toast-close {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 1rem;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+
+    .toast-close:hover {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Hidden Messages (filtered by tag) -->
+    {% if messages %}
+        {% for message in messages %}
+            {% if 'delete_account' in message.tags %}
+                <div class="d-none alert-message" 
+                     data-message="{{ message }}" 
+                     data-type="{{ message.tags }}">
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">Delete Account</h3>
+                </div>
+                <div class="card-body">
+                    <p class="lead text-muted">
+                        Are you sure you want to delete your account? This action cannot be undone.
+                    </p>
+
+                    <form method="post" id="deleteAccountForm">
+                        {% csrf_token %}
+                        
+                        {% if sign_up_method == 'form' %}
+                            <div class="mb-4">
+                                <label for="id_password" class="form-label">
+                                    Confirm Password
+                                </label>
+                                {{ form.password }}
+                                {% if form.password.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.password.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                You signed up using Google. A verification email will be sent to confirm deletion.
+                            </div>
+                        {% endif %}
+
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-trash-alt me-2"></i>
+                                Delete Account Permanently
+                            </button>
+                            <a href="{% url 'buyer:profile' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times-circle me-2"></i>
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Test toast
+    
+    // Handle existing Django messages
+    const alertMessages = document.querySelectorAll('.alert-message');
+    alertMessages.forEach(message => {
+        const text = message.textContent.trim();
+        const type = message.getAttribute('data-type').split(' ')[0] || 'info';
+        
+        const typeMap = {
+            'success': 'success',
+            'error': 'error',
+            'warning': 'warning',
+            'info': 'info'
+        };
+        
+        showToast(text, typeMap[type] || 'info');
+    });
+
+    // Handle form submission
+    const form = document.getElementById('deleteAccountForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+                Processing...
+            `;
+        });
+    }
+});
+
+// Toast function (same as wishlist.html)
+function showToast(message, type = 'info') {
+    const toastContainer = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type} show`;
+    
+    const iconMap = {
+        'success': 'fa-check-circle',
+        'error': 'fa-times-circle',
+        'warning': 'fa-exclamation-triangle',
+        'info': 'fa-info-circle'
+    };
+    
+    toast.innerHTML = `
+        <i class="fas ${iconMap[type]} toast-icon"></i>
+        <span>${message}</span>
+        <button class="toast-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="toast-progress"></div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 10000);
+}
+</script>
+{% endblock %}

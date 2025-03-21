@@ -1,0 +1,444 @@
+{% extends 'buyer/base_buyer.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-green: #2ecc71;
+        --secondary-green: #27ae60;
+        --primary-blue: #3498db;
+        --light-gray: #f8f9fa;
+        --border-radius: 15px;
+    }
+
+    .order-card {
+        border: none;
+        border-radius: var(--border-radius);
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+        background: white;
+        overflow: hidden;
+    }
+    
+    .order-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .order-header {
+        background: linear-gradient(135deg, var(--primary-green), var(--primary-blue));
+        padding: 1.5rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .order-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: translate(50%, -50%);
+    }
+    
+    .payment-badge {
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .payment-badge.razorpay {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+        color: white;
+    }
+    
+    .payment-badge.pending {
+        background-color: #FFF4DE;
+        color: #FFA600;
+    }
+    
+    .payment-badge.completed {
+        background-color: #E1F9F1;
+        color: #00CA72;
+    }
+    
+    .order-timeline {
+        position: relative;
+        padding: 20px 0;
+    }
+
+    .order-timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: #e9ecef;
+        border-radius: 3px;
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-left: 45px;
+        margin-bottom: 25px;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: 7px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #e9ecef;
+        border: 3px solid #fff;
+        box-shadow: 0 0 0 3px rgba(233, 236, 239, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .timeline-item.active .timeline-dot {
+        background: var(--primary-green);
+        box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.3);
+    }
+
+    .timeline-content {
+        padding: 12px 18px;
+        background: var(--light-gray);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-item.active .timeline-content {
+        background: #E1F9F1;
+    }
+
+    .timeline-content h6 {
+        margin: 0;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .timeline-content small {
+        color: #6c757d;
+        display: block;
+        margin-top: 4px;
+    }
+    
+    .order-items-table {
+        background: var(--light-gray);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+    
+    .order-items-table th {
+        font-weight: 600;
+        color: #2c3e50;
+        padding: 1rem;
+    }
+    
+    .order-items-table td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .product-name {
+        color: #2c3e50;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .product-image {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        padding: 1.5rem;
+    }
+    
+    .action-buttons .btn {
+        border-radius: 25px;
+        padding: 10px 25px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .action-buttons .btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-view-details {
+        background: linear-gradient(45deg, var(--primary-green), var(--primary-blue));
+        border: none;
+        color: white;
+    }
+
+    .btn-cancel {
+        background: #fff;
+        border: 2px solid #dc3545;
+        color: #dc3545;
+    }
+
+    .btn-cancel:hover {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .empty-orders {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .empty-orders img {
+        max-width: 250px;
+        margin-bottom: 2rem;
+    }
+
+    .empty-orders h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    .empty-orders p {
+        color: #6c757d;
+        margin-bottom: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+        .order-card {
+            margin-bottom: 1.5rem;
+        }
+        
+        .order-header {
+            padding: 1rem;
+        }
+        
+        .payment-badge {
+            margin-top: 10px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .action-buttons .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* Animation Classes */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fade-in-up {
+        animation: fadeInUp 0.5s ease forwards;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">My Orders</h2>
+        <a href="{% url 'home:home' %}" class="btn btn-outline-primary rounded-pill">
+            <i class="fas fa-shopping-basket me-2"></i>Continue Shopping
+        </a>
+    </div>
+    
+    {% if orders %}
+        {% for order in orders %}
+            <div class="card order-card animate-fade-in-up" style="animation-delay: {{ forloop.counter0}}s">
+                <div class="order-header">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center flex-wrap">
+                                <h5 class="mb-0 me-3">Order {{ order.id }}</h5>
+                                <span class="payment-badge {% if order.payment_method == 'razorpay' %}razorpay{% endif %} {% if order.payment_status %}completed{% else %}pending{% endif %}">
+                                    {% if order.payment_method == 'razorpay' %}
+                                        <i class="fas fa-shield-alt"></i>Razorpay
+                                    {% endif %}
+                                    {% if order.payment_status %}
+                                        <i class="fas fa-check-circle"></i>Paid
+                                    {% else %}
+                                        <i class="fas fa-clock"></i>Pending
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <p class="text-white-50 mb-0 mt-2">
+                                <i class="far fa-calendar-alt me-2"></i>{{ order.created_at|date:"F j, Y" }}
+                            </p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <h4 class="mb-0">₹{{ order.total_amount }}</h4>
+                            <small class="text-white-50">Total Amount</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="order-timeline">
+                                <div class="timeline-item {% if order.order_status == 'pending' or order.order_status == 'confirmed' or order.order_status == 'out_for_delivery' or order.order_status == 'delivered' %}active{% endif %}">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <h6><i class="fas fa-credit-card me-2"></i>Payment</h6>
+                                        <small>{% if order.payment_status == 'paid' %}Paid via {{ order.payment_method }}{% else %}Pending payment{% endif %}</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item {% if order.order_status == 'confirmed' or order.order_status == 'out_for_delivery' or order.order_status == 'delivered' %}active{% endif %}">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <h6><i class="fas fa-check-circle me-2"></i>Order Confirmation</h6>
+                                        <small>{% if order.order_status == 'confirmed' or order.order_status == 'out_for_delivery' or order.order_status == 'delivered' %}Order confirmed by seller{% else %}Waiting for confirmation{% endif %}</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item {% if order.order_status == 'out_for_delivery' or order.order_status == 'delivered' %}active{% endif %}">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <h6><i class="fas fa-truck me-2"></i>Out for Delivery</h6>
+                                        <small>
+                                            {% if order.order_status == 'out_for_delivery' or order.order_status == 'delivered' %}
+                                                {% if order.delivery_boy %}
+                                                    Being delivered by {{ order.delivery_boy.name }}
+                                                {% else %}
+                                                    Out for delivery
+                                                {% endif %}
+                                            {% else %}
+                                                Waiting to be dispatched
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                                
+                                <div class="timeline-item {% if order.order_status == 'delivered' %}active{% endif %}">
+                                    <div class="timeline-dot"></div>
+                                    <div class="timeline-content">
+                                        <h6><i class="fas fa-box-open me-2"></i>Delivered</h6>
+                                        <small>{% if order.order_status == 'delivered' %}Order completed{% else %}Pending delivery{% endif %}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-8">
+                            <div class="order-items-table">
+                                <div class="table-responsive">
+                                    <table class="table table-borderless mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th class="text-center">Quantity</th>
+                                                <th class="text-end">Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in order.order_items.all %}
+                                                <tr>
+                                                    <td>
+                                                        <div class="product-name">
+                                                            {% if item.product.image %}
+                                                                <img src="{{ MEDIA_URL }}image/{{ item.product.image }}" alt="{{ item.product.name }}" class="product-image">
+                                                            {% endif %}
+                                                            {{ item.product.name }}
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center">{{ item.quantity }}</td>
+                                                    <td class="text-end">₹{{ item.price }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                            <tr class="border-top">
+                                                <td colspan="2" class="text-end fw-bold">Total:</td>
+                                                <td class="text-end fw-bold">₹{{ order.total_amount }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <a href="{% url 'buyer:order_detail' order.id %}" class="btn btn-view-details">
+                            <i class="fas fa-eye"></i>View Details
+                        </a>
+                        {% if order.can_cancel %}
+                            <button type="button" class="btn btn-cancel" data-bs-toggle="modal" data-bs-target="#cancelOrderModal{{ order.id }}">
+                                <i class="fas fa-times"></i>Cancel Order
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if order.can_cancel %}
+                <!-- Cancel Order Modal -->
+                <div class="modal fade" id="cancelOrderModal{{ order.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Cancel Order #{{ order.id }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to cancel this order? This action cannot be undone.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep Order</button>
+                                <form method="post" action="{% url 'buyer:cancel_order' order.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger">Yes, Cancel Order</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <div class="empty-orders animate-fade-in-up">
+            <img src="{% static 'images/empty-orders.svg' %}" alt="No Orders" class="mb-4">
+            <h3>No Orders Yet</h3>
+            <p class="text-muted">Looks like you haven't placed any orders yet.</p>
+            <a href="{% url 'home:home' %}" class="btn btn-primary rounded-pill">
+                <i class="fas fa-shopping-basket me-2"></i>Start Shopping
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

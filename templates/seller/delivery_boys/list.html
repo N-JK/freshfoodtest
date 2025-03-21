@@ -1,0 +1,358 @@
+{% extends 'seller/layouts/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+.delivery-boys-header {
+    background: #fff;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.add-btn {
+    background: #4F46E5;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.add-btn:hover {
+    background: #4338CA;
+    transform: translateY(-1px);
+}
+
+.delivery-boy-card {
+    background: #fff;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    margin-bottom: 1.5rem;
+    border: 1px solid #E2E8F0;
+}
+
+.delivery-boy-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.delivery-boy-header {
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.profile-image {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.delivery-boy-info {
+    flex-grow: 1;
+}
+
+.delivery-boy-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1E293B;
+    margin-bottom: 0.25rem;
+}
+
+.delivery-boy-contact {
+    color: #64748B;
+    font-size: 0.95rem;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-available {
+    background: #DCFCE7;
+    color: #166534;
+}
+
+.status-busy {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.status-offline {
+    background: #F1F5F9;
+    color: #475569;
+}
+
+.delivery-boy-stats {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background: #F8FAFC;
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1E293B;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    color: #64748B;
+    font-size: 0.875rem;
+}
+
+.vehicle-info {
+    padding: 1.5rem;
+    border-top: 1px solid #E2E8F0;
+}
+
+.info-title {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    color: #64748B;
+    margin-bottom: 1rem;
+    letter-spacing: 0.5px;
+}
+
+.vehicle-details {
+    display: flex;
+    gap: 2rem;
+}
+
+.vehicle-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #1E293B;
+}
+
+.vehicle-item i {
+    color: #64748B;
+}
+
+.recent-deliveries {
+    padding: 1.5rem;
+    border-top: 1px solid #E2E8F0;
+}
+
+.delivery-table {
+    width: 100%;
+    font-size: 0.95rem;
+}
+
+.delivery-table th {
+    color: #64748B;
+    font-weight: 500;
+    padding: 0.75rem;
+    text-align: left;
+}
+
+.delivery-table td {
+    padding: 0.75rem;
+    color: #1E293B;
+}
+
+.delivery-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.status-delivered {
+    background: #DCFCE7;
+    color: #166534;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    border-top: 1px solid #E2E8F0;
+}
+
+.btn-action {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    flex: 1;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.btn-edit {
+    background: #EEF2FF;
+    color: #4F46E5;
+    border: none;
+}
+
+.btn-edit:hover {
+    background: #E0E7FF;
+}
+
+.btn-deactivate {
+    background: #FEE2E2;
+    color: #991B1B;
+    border: none;
+}
+
+.btn-deactivate:hover {
+    background: #FEE2E2;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="delivery-boys-header">
+        <div>
+            <h4 class="mb-0">Delivery Boys</h4>
+            <p class="text-muted mb-0">Manage your delivery team</p>
+        </div>
+        <button class="add-btn" onclick="location.href='{% url 'seller:add_delivery_boy' %}'">
+            <i class="fas fa-plus"></i>
+            Add Delivery Boy
+        </button>
+    </div>
+
+    <!-- Delivery Boys List -->
+    {% if delivery_boys %}
+    <div class="row">
+        {% for boy in delivery_boys %}
+        <div class="col-md-6 mb-4">
+            <div class="delivery-boy-card">
+                <!-- Header with Profile -->
+                <div class="delivery-boy-header">
+                    {% if boy.profile_photo %}
+                    <img src="{{ MEDIA_URL }}image/{{ boy.profile_photo }}" alt="{{ boy.name }}" class="profile-image">
+                    {% else %}
+                    <img src="{% get_media_prefix %}image/default-profile.jpg" alt="{{ boy.name }}" class="profile-image">
+                    {% endif %}
+                    <div class="delivery-boy-info">
+                        <h5 class="delivery-boy-name">{{ boy.name }}</h5>
+                        <div class="delivery-boy-contact">{{ boy.phone }}</div>
+                    </div>
+                    <span class="status-badge {% if boy.status == 'available' %}status-available{% elif boy.status == 'on_delivery' %}status-busy{% else %}status-offline{% endif %}">
+                        {{ boy.get_status_display }}
+                    </span>
+                </div>
+
+                <!-- Statistics -->
+                <div class="delivery-boy-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">{{ boy.total_deliveries }}</div>
+                        <div class="stat-label">Total Deliveries</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">{{ boy.on_time_percentage|floatformat:1 }}%</div>
+                        <div class="stat-label">On-Time Delivery</div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Information -->
+                <div class="vehicle-info">
+                    <h6 class="info-title">Vehicle Information</h6>
+                    <div class="vehicle-details">
+                        <div class="vehicle-item">
+                            <i class="fas fa-motorcycle"></i>
+                            <span>{{ boy.vehicle_type }} - {{ boy.vehicle_number }}</span>
+                        </div>
+                        <div class="vehicle-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>{{ boy.assigned_location.name }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Deliveries -->
+                {% if boy.recent_deliveries %}
+                <div class="recent-deliveries">
+                    <h6 class="info-title">Recent Deliveries</h6>
+                    <table class="delivery-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in boy.recent_deliveries %}
+                            <tr>
+                                <td>#{{ order.id }}</td>
+                                <td>{{ order.updated_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <span class="delivery-status status-delivered">
+                                        Delivered
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn-action btn-edit" onclick="location.href='{% url 'seller:edit_delivery_boy' boy.id %}'">
+                        <i class="fas fa-edit me-2"></i>Edit
+                    </button>
+                    <button class="btn-action btn-deactivate" onclick="return confirm('Are you sure you want to deactivate this delivery boy?')" onclick="location.href='{% url 'seller:toggle_delivery_boy_status' boy.id %}'">
+                        <i class="fas fa-user-times me-2"></i>Deactivate
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-4">
+        <img src="{% static 'images/no-data.svg' %}" alt="No Data" style="width: 150px;">
+        <h4 class="mt-3">No Delivery Boys Added Yet</h4>
+        <p class="text-muted">Start by adding your first delivery boy</p>
+        <a href="{% url 'seller:add_delivery_boy' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Add Delivery Boy
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function deactivateDeliveryBoy(id) {
+    if (confirm('Are you sure you want to deactivate this delivery boy?')) {
+        // Add your deactivation logic here
+        location.href = `/seller/delivery-boys/${id}/deactivate/`;
+    }
+}
+</script>
+{% endblock %}

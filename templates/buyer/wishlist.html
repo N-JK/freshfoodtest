@@ -1,0 +1,302 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}My Wishlist - Fresh Food{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Professional Toast Notifications */
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1100;
+    }
+
+    .toast {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        color: white;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.3s ease;
+        min-width: 250px;
+        position: relative;
+        margin-bottom: 10px;
+    }
+
+    .toast.show {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .toast-success {
+        background-color: #28a745;
+    }
+
+    .toast-error {
+        background-color: #dc3545;
+    }
+
+    .toast-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 4px;
+        background-color: rgba(255,255,255,0.7);
+        width: 100%;
+        transform-origin: left;
+        animation: toast-progress 3s linear forwards;
+    }
+
+    @keyframes toast-progress {
+        0% { transform: scaleX(1); }
+        100% { transform: scaleX(0); }
+    }
+
+    .toast-icon {
+        margin-right: 12px;
+        font-size: 1.2rem;
+    }
+
+    .toast-close {
+        margin-left: auto;
+        background: none;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 1rem;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+
+    .toast-close:hover {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">My Wishlist</h2>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Existing Messages (will be converted to toasts) -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="d-none alert-message" 
+                 data-message="{{ message }}" 
+                 data-type="{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if wishlist_items %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            {% for item in wishlist_items %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <img src="{{ item.product.image.url }}" class="card-img-top" alt="{{ item.product.name }}" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item.product.name }}</h5>
+                            <p class="card-text text-muted">{{ item.product.unit }}</p>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="h5 mb-0">₹{{ item.product.price }}</span>
+                                {% if item.product.stock > 0 %}
+                                    <span class="badge bg-success">In Stock</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Out of Stock</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                {% if item.product.stock > 0 %}
+                                    <form class="add-to-cart-form" 
+                                          action="{% url 'buyer:add_to_cart' item.product.id %}" 
+                                          method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                                        </button>
+                                    </form>
+                                {% endif %}
+                                <form class="remove-from-wishlist-form" action="{% url 'buyer:remove_from_wishlist' item.product.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger w-100">
+                                        <i class="fas fa-heart-broken"></i> Remove
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-heart fa-4x text-muted mb-3"></i>
+            <h3>Your wishlist is empty</h3>
+            <p class="text-muted">Browse our products and add items to your wishlist.</p>
+            <a href="{% url 'home:home' %}" class="btn btn-primary mt-3">
+                Start Shopping
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Professional Toast Notification Function
+    function showToast(message, type = 'info') {
+        const toastContainer = document.getElementById('toastContainer');
+        
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type} show`;
+        
+        // Determine icon based on type
+        const iconMap = {
+            'success': 'fa-check-circle',
+            'error': 'fa-times-circle',
+            'warning': 'fa-exclamation-triangle',
+            'info': 'fa-info-circle'
+        };
+        const icon = iconMap[type] || 'fa-info-circle';
+
+        toast.innerHTML = `
+            <i class="fas ${icon} toast-icon"></i>
+            <span>${message}</span>
+            <button class="toast-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="toast-progress"></div>
+        `;
+
+        // Add to container
+        toastContainer.appendChild(toast);
+
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Convert existing messages to toasts on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle Django messages
+        const alertMessages = document.querySelectorAll('.alert-message');
+        alertMessages.forEach(message => {
+            const text = message.textContent.trim();
+            const type = message.getAttribute('data-type');
+            const typeMap = {
+                'success': 'success',
+                'error': 'error',
+                'warning': 'warning',
+                'info': 'info'
+            };
+            showToast(text, typeMap[type] || 'info');
+        });
+
+        // Add to Cart AJAX handling
+        document.querySelectorAll('.add-to-cart-form').forEach(form => {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalBtnHtml = submitBtn.innerHTML;
+
+                try {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
+
+                    const response = await fetch(this.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value,
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams(new FormData(this))
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const cartCountElement = document.getElementById('cart-count');
+                        if (cartCountElement) {
+                            cartCountElement.textContent = data.cart_count;
+                            cartCountElement.style.display = data.cart_count > 0 ? '' : 'none';
+                        }
+                        showToast(data.message, 'success');
+                    } else {
+                        showToast(data.error || 'Failed to add item to cart', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showToast('Something went wrong! Please try again.', 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                }
+            });
+        });
+
+        // Remove from Wishlist AJAX handling
+        document.querySelectorAll('.remove-from-wishlist-form').forEach(form => {
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalBtnHtml = submitBtn.innerHTML;
+                const card = this.closest('.col');
+
+                try {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+                    const response = await fetch(this.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value,
+                        },
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        card.remove();
+                        // Update empty state if last item
+                        if (!document.querySelector('.remove-from-wishlist-form')) {
+                            document.querySelector('.row').innerHTML = `
+                                <div class="text-center py-5">
+                                    <i class="fas fa-heart fa-4x text-muted mb-3"></i>
+                                    <h3>Your wishlist is empty</h3>
+                                    <p class="text-muted">Browse our products and add items to your wishlist.</p>
+                                    <a href="{% url 'home:home' %}" class="btn btn-primary mt-3">
+                                        Start Shopping
+                                    </a>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        showToast(data.error || 'Failed to remove item', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showToast('Something went wrong! Please try again.', 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

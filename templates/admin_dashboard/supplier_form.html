@@ -1,0 +1,327 @@
+{% extends 'admin_dashboard/layouts/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Home Fresh Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+    }
+
+    .form-title {
+        color: #1a237e;
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 2rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
+    .section-title {
+        color: #1a237e;
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        color: #1a237e;
+        font-size: 1.2rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-label {
+        display: block;
+        color: #444;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.875rem 1rem;
+        width: 100%;
+        transition: all 0.2s ease;
+        font-size: 0.95rem;
+    }
+
+    .form-control:focus {
+        border-color: #1a237e;
+        box-shadow: 0 0 0 3px rgba(26, 35, 126, 0.1);
+        outline: none;
+    }
+
+    .checkbox-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .checkbox-wrapper {
+        position: relative;
+    }
+
+    .checkbox-wrapper input[type="checkbox"] {
+        display: none;
+    }
+
+    .checkbox-wrapper label {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.95rem;
+        color: #444;
+        gap: 0.75rem;
+    }
+
+    .checkbox-wrapper label:before {
+        content: '';
+        width: 20px;
+        height: 20px;
+        border: 2px solid #cbd5e1;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .checkbox-wrapper input[type="checkbox"]:checked + label {
+        background: #e8eaf6;
+        border-color: #1a237e;
+        color: #1a237e;
+    }
+
+    .checkbox-wrapper input[type="checkbox"]:checked + label:before {
+        background: #1a237e;
+        border-color: #1a237e;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white' width='18px' height='18px'%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+        background-size: 12px;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .form-help-text {
+        color: #64748b;
+        font-size: 0.875rem;
+        margin-top: 0.375rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .btn {
+        padding: 0.875rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: none;
+        font-size: 0.95rem;
+    }
+
+    .btn-primary {
+        background: #1a237e;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #151b4f;
+    }
+
+    .btn-secondary {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .btn-secondary:hover {
+        background: #e2e8f0;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-danger {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+    .invalid-feedback {
+        color: #dc2626;
+        font-size: 0.875rem;
+        margin-top: 0.375rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <h1 class="form-title">{{ title }}</h1>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                {{ error }}
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-user"></i> Personal Information
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                        <div class="invalid-feedback">{{ form.first_name.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                        <div class="invalid-feedback">{{ form.last_name.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <div class="invalid-feedback">{{ form.email.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-store"></i> Business Information
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Business Name</label>
+                    {{ form.business_name }}
+                    {% if form.business_name.errors %}
+                    <div class="invalid-feedback">{{ form.business_name.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Contact Number</label>
+                        {{ form.contact_number }}
+                        {% if form.contact_number.errors %}
+                        <div class="invalid-feedback">{{ form.contact_number.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Business Address</label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                    <div class="invalid-feedback">{{ form.address.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-map-marker-alt"></i> Service Areas
+                </div>
+                <div class="checkbox-group">
+                    {% for location in form.locations %}
+                    <div class="checkbox-wrapper">
+                        {{ location.tag }}
+                        <label for="{{ location.id_for_label }}">{{ location.choice_label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if form.locations.errors %}
+                <div class="invalid-feedback">{{ form.locations.errors }}</div>
+                {% endif %}
+                {% if form.locations.help_text %}
+                <div class="form-help-text">{{ form.locations.help_text }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-tags"></i> Product Categories
+                </div>
+                <div class="checkbox-group">
+                    {% for category in form.categories %}
+                    <div class="checkbox-wrapper">
+                        {{ category.tag }}
+                        <label for="{{ category.id_for_label }}">{{ category.choice_label }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if form.categories.errors %}
+                <div class="invalid-feedback">{{ form.categories.errors }}</div>
+                {% endif %}
+                {% if form.categories.help_text %}
+                <div class="form-help-text">{{ form.categories.help_text }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Supplier
+                </button>
+                <a href="{% url 'admin_dashboard:suppliers_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

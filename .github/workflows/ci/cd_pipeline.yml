@@ -1,0 +1,54 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master  # Adjust this to your main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the code from the repository
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Step 2: Deploy to EC2
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: "ubuntu"
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          # Navigate to the project directory
+          cd /path/to/your/project
+
+          # Remove old code
+          rm -rf *
+
+          # Pull the latest code from the repository
+          git clone https://github.com/yourusername/yourrepository.git .
+
+          # Activate the virtual environment
+          source venv/bin/activate
+
+          # Install dependencies
+          pip install -r requirements.txt
+
+          # Collect static files
+          python manage.py collectstatic --noinput
+
+          # Apply database migrations
+          python manage.py migrate
+
+          # Kill the existing Django development server process
+          pkill -f "manage.py runserver"
+
+          # Start the Django development server
+          nohup python manage.py runserver 0.0.0.0:8000 &
+
+          # Optionally, clean up any unnecessary files
+          find . -name "*.pyc" -delete
+          find . -name "__pycache__" -delete

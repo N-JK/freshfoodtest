@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Approved - Home Fresh</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(45deg, #4e73df, #224abe);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: white;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .product-details {
+            background: #f8f9fc;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #4e73df;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        .product-image {
+            max-width: 200px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Product Approved!</h1>
+        </div>
+        <div class="content">
+            <p>Dear {{ product.supplier.business_name }},</p>
+            
+            <p>Great news! Your product has been approved and is now live on Home Fresh.</p>
+            
+            <div class="product-details">
+                <h3>Product Details:</h3>
+                <p><strong>Name:</strong> {{ product.name }}</p>
+                <p><strong>Category:</strong> {{ product.category.name }}</p>
+                <p><strong>Price:</strong> ₹{{ product.price }}</p>
+                <p><strong>Stock:</strong> {{ product.stock }} units</p>
+                
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                {% endif %}
+            </div>
+            
+            <p>Your product is now visible to customers and ready for orders. You can manage your product inventory and view orders through your seller dashboard.</p>
+            
+            <a href="{{ dashboard_url }}" class="button">Go to Dashboard</a>
+            
+            <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+            
+            <p>Best regards,<br>The Home Fresh Team</p>
+        </div>
+        <div class="footer">
+            <p>&copy; {% now "Y" %} Home Fresh. All rights reserved.</p>
+            <p>
+                <small>This is an automated email regarding your product approval on Home Fresh. 
+                Please do not reply to this email.</small>
+            </p>
+        </div>
+    </div>
+</body>
+</html> 

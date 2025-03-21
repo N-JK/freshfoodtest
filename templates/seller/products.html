@@ -1,0 +1,441 @@
+{% extends 'seller/layouts/base.html' %}
+{% load static %}
+
+{% block title %}Products - {{ seller.supplier.business_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .product-status {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+    }
+
+    .status-pending {
+        background: rgba(246, 194, 62, 0.9);
+        color: white;
+    }
+
+    .status-approved {
+        background: rgba(28, 200, 138, 0.9);
+        color: white;
+    }
+
+    .status-low-stock {
+        background: rgba(231, 74, 59, 0.9);
+        color: white;
+    }
+
+    .product-price {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .stock-indicator {
+        height: 8px;
+        border-radius: 4px;
+        background: #e9ecef;
+        overflow: hidden;
+    }
+
+    .stock-level {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .stock-good { background: #1cc88a; }
+    .stock-warning { background: #f6c23e; }
+    .stock-danger { background: #e74a3b; }
+
+    /* Filter Section */
+    .filter-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .category-filter {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .category-badge {
+        padding: 8px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .category-badge.active {
+        background: #4e73df;
+        color: white;
+    }
+
+    /* Price Styles */
+    .input-group-text {
+        background-color: #f8f9fa;
+        color: #2c3e50;
+        font-weight: 500;
+    }
+
+    /* Optional: Add Indian Rupee font for better symbol rendering */
+    @font-face {
+        font-family: 'Rupee';
+        src: url('https://cdn.jsdelivr.net/npm/rupee-font@1.0.3/rupee.ttf') format('truetype');
+    }
+
+    .product-price, .input-group-text {
+        font-family: 'Rupee', Arial, sans-serif;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">Products Management</h2>
+            <p class="text-muted">Manage your product catalog</p>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productModal">
+            <i class="fas fa-plus me-2"></i>Add New Product
+        </button>
+    </div>
+
+    <!-- Filters -->
+    <div class="card filter-card">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Search Products</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search by name...">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Category</label>
+                    <div class="category-filter">
+                        <span class="category-badge active">All</span>
+                        {% for category in seller.supplier.categories.all %}
+                        <span class="category-badge">{{ category.name }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="approved">Approved</option>
+                        <option value="pending">Pending Approval</option>
+                        <option value="low-stock">Low Stock</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-md-4 col-lg-3">
+            <div class="card product-card">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
+                {% else %}
+                <div class="product-image bg-light d-flex align-items-center justify-content-center">
+                    <i class="fas fa-image fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+
+                {% if product.status == 'pending' %}
+                <span class="product-status status-pending">Pending Approval</span>
+                {% elif product.status == 'approved' and product.stock <= product.threshold %}
+                <span class="product-status status-low-stock">Low Stock</span>
+                {% elif product.status == 'approved' %}
+                <span class="product-status status-approved">Active</span>
+                {% endif %}
+
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="text-muted mb-2">{{ product.category.name }}</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="product-price">₹{{ product.price }}</span>
+                        <small class="text-muted">Stock: {{ product.stock }}</small>
+                    </div>
+
+                    <div class="stock-indicator mb-3">
+                        <div class="stock-level {% if product.stock <= product.threshold %}stock-danger{% elif product.stock <= product.threshold|add:10 %}stock-warning{% else %}stock-good{% endif %}"
+                             style="width: {{ product.stock_percentage }}%"></div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary flex-grow-1" 
+                                onclick="editProduct({{ product.id }})">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+            <h4>No Products Found</h4>
+            <p class="text-muted">Start by adding your first product</p>
+            <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#productModal">
+                <i class="fas fa-plus me-2"></i>Add New Product
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Add/Edit Product Modal -->
+<div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="productForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Product Name</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" name="category" required>
+                                <option value="">Select a category</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Price</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₹</span>
+                                <input type="number" class="form-control" name="price" step="0.01" min="0" required 
+                                       placeholder="Enter price in rupees">
+                            </div>
+                            <small class="text-muted">Enter price in Indian Rupees (₹)</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Initial Stock</label>
+                            <input type="number" class="form-control" name="stock" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Low Stock Threshold</label>
+                            <input type="number" class="form-control" name="threshold" value="10" required>
+                            <small class="text-muted">You'll be notified when stock falls below this number</small>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" name="description" rows="3" required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Product Image</label>
+                            <input type="file" class="form-control" name="image" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Product Form Handling
+document.getElementById('productForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    try {
+        // Get form data
+        const formData = new FormData(this);
+        const jsonData = {};
+        
+        // Convert form data to JSON and validate
+        formData.forEach((value, key) => {
+            // Skip empty image field
+            if (key === 'image' && (!value || value.size === 0)) {
+                return;
+            }
+            
+            // Validate required fields except image
+            if (!value && key !== 'image' && key !== 'csrfmiddlewaretoken') {
+                throw new Error(`${key} is required`);
+            }
+
+            if (key === 'price') {
+                const price = parseFloat(value);
+                if (isNaN(price) || price <= 0) {
+                    throw new Error('Price must be a positive number');
+                }
+                jsonData[key] = price;
+            } else if (key === 'stock' || key === 'threshold') {
+                const num = parseInt(value);
+                if (isNaN(num) || num < 0) {
+                    throw new Error(`${key} must be a non-negative number`);
+                }
+                jsonData[key] = num;
+            } else if (key !== 'image') {  // Don't add image to JSON data
+                jsonData[key] = value;
+            }
+        });
+
+        console.log('Sending data:', jsonData); // Debug log
+        
+        const productId = this.dataset.productId;
+        const url = productId 
+            ? `/seller/api/products/${productId}/`  // Update existing product
+            : '/seller/api/products/';              // Create new product
+        
+        const method = productId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify(jsonData)
+        });
+
+        const result = await response.json();
+        console.log('Server response:', result); // Debug log
+
+        if (!response.ok) {
+            throw new Error(result.message || result.error || 'Failed to save product');
+        }
+
+        if (result.status === 'success') {
+            alert(result.message || 'Product saved successfully!');
+            location.reload();
+        } else {
+            throw new Error(result.message || 'Failed to save product');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error saving product. Please try again.\nError: ' + error.message);
+    }
+});
+
+// Edit Product
+async function editProduct(productId) {
+    try {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const response = await fetch(`/seller/api/products/${productId}/`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            }
+        });
+
+        if (!response.ok) {
+            const text = await response.text();
+            console.error('Server response:', text);
+            throw new Error('Failed to load product');
+        }
+
+        const result = await response.json();
+        if (!result.data) {
+            throw new Error('No product data received');
+        }
+
+        const product = result.data;
+        
+        // Update modal title
+        document.querySelector('#productModal .modal-title').textContent = 'Edit Product';
+        const form = document.getElementById('productForm');
+        
+        // Store the product ID for the update
+        form.dataset.productId = productId;
+        
+        // Fill form fields
+        const fields = {
+            'name': product.name || '',
+            'category': product.category || '',
+            'description': product.description || '',
+            'price': product.price || '',
+            'stock': product.stock || '',
+            'threshold': product.threshold || ''
+        };
+
+        Object.entries(fields).forEach(([fieldName, value]) => {
+            const input = form.querySelector(`[name="${fieldName}"]`);
+            if (input) {
+                input.value = value;
+            }
+        });
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('productModal'));
+        modal.show();
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error loading product details. Please try again.');
+    }
+}
+
+// Search and Filter Functionality
+document.getElementById('searchInput').addEventListener('input', filterProducts);
+document.getElementById('statusFilter').addEventListener('change', filterProducts);
+
+function filterProducts() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const status = document.getElementById('statusFilter').value;
+    
+    document.querySelectorAll('.product-card').forEach(card => {
+        const productName = card.querySelector('.card-title').textContent.toLowerCase();
+        const productStatus = card.querySelector('.product-status').textContent.toLowerCase();
+        
+        const matchesSearch = productName.includes(searchTerm);
+        const matchesStatus = status === 'all' || productStatus.includes(status);
+        
+        card.closest('.col-md-4').style.display = 
+            matchesSearch && matchesStatus ? 'block' : 'none';
+    });
+}
+</script>
+{% endblock %}

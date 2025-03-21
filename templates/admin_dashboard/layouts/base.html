@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Home Fresh Admin{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --sidebar-width: 250px;
+            --primary-color: #1a237e;
+            --secondary-color: #304ffe;
+            --accent-color: #536dfe;
+            --text-light: #ffffff;
+            --text-dark: #1a237e;
+            --bg-light: #f5f6fa;
+            --transition-speed: 0.3s;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+        }
+        
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-light);
+            padding: 1.5rem;
+            transition: all var(--transition-speed) ease;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: 100vh;
+            background: var(--bg-light);
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .sidebar-header {
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .sidebar-header h4 {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .nav-link {
+            color: rgba(255,255,255,0.85);
+            padding: 0.8rem 1rem;
+            margin: 0.4rem 0;
+            border-radius: 8px;
+            transition: all var(--transition-speed) ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+        
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .nav-link:hover {
+            background: rgba(255,255,255,0.15);
+            color: white;
+            transform: translateX(5px);
+        }
+        
+        .nav-link.active {
+            background: var(--accent-color);
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: all var(--transition-speed) ease;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+            color: white;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            padding: 0.25rem 0.5rem;
+            border-radius: 50%;
+            background: #ff4757;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        /* Animations */
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease forwards;
+        }
+        
+        .fade-up {
+            animation: fadeUp 0.5s ease forwards;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h4 class="mb-0">Home Fresh</h4>
+            <p class="text-muted small mb-0">Admin Dashboard</p>
+        </div>
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+            <li class="nav-item">
+                <a href="{% url 'admin_dashboard:admin_dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                    <i class="fas fa-home me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'admin_dashboard:categories_list' %}" class="nav-link {% if request.resolver_match.url_name == 'categories_list' %}active{% endif %}">
+                    <i class="fas fa-list me-2"></i> Categories
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'admin_dashboard:locations_list' %}" class="nav-link {% if request.resolver_match.url_name == 'locations_list' %}active{% endif %}">
+                    <i class="fas fa-map-marker-alt me-2"></i> Locations
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'admin_dashboard:suppliers_list' %}" class="nav-link {% if request.resolver_match.url_name == 'suppliers_list' %}active{% endif %}">
+                    <i class="fas fa-users me-2"></i> Suppliers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'admin_dashboard:products_list' %}" class="nav-link {% if request.resolver_match.url_name == 'products_list' %}active{% endif %}">
+                    <i class="fas fa-box me-2"></i> Products
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'admin_dashboard:restock_requests' %}" class="nav-link {% if request.resolver_match.url_name == 'restock_requests' %}active{% endif %}">
+                    <i class="fas fa-sync me-2"></i> Restock Requests
+                </a>
+            </li>
+            <li class="nav-item mt-auto">
+                <a href="{% url 'admin_dashboard:admin_logout' %}" class="nav-link text-danger">
+                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom JS -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

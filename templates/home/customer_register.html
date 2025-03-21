@@ -1,0 +1,133 @@
+{% extends 'home/base.html' %}
+
+{% block title %}Register - Home Fresh{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-5">
+                    <h3 class="text-center mb-4">Create Customer Account</h3>
+                    
+                    {% if messages %}
+                    <div class="alert alert-danger">
+                        {% for message in messages %}
+                        <p {% if forloop.last %}class="mb-0"{% endif %}>{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ next }}">
+                        
+                        <div class="row g-3">
+                            <!-- Personal Information -->
+                            <div class="col-md-6">
+                                <label class="form-label">First Name</label>
+                                <input type="text" name="first_name" class="form-control" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" name="last_name" class="form-control" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" name="email" class="form-control" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" name="phone" class="form-control" required>
+                            </div>
+                            
+                            <!-- Address -->
+                            <div class="col-12">
+                                <label class="form-label">Address</label>
+                                <textarea name="address" class="form-control" rows="3" required></textarea>
+                            </div>
+                            
+                            <!-- Add this inside the form, after the address field -->
+                            <div class="col-12">
+                                <label class="form-label">Delivery Location</label>
+                                <select name="location" class="form-select" required>
+                                    <option value="">Select your delivery location</option>
+                                    {% for location in locations %}
+                                    <option value="{{ location.id }}">{{ location.name }} - {{ location.city }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <!-- Password -->
+                            <div class="col-md-6">
+                                <label class="form-label">Password</label>
+                                <input type="password" name="password" class="form-control" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Confirm Password</label>
+                                <input type="password" name="confirm_password" class="form-control" required>
+                            </div>
+                            
+                            <!-- Terms and Conditions -->
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="terms" required>
+                                    <label class="form-check-label" for="terms">
+                                        I agree to the <a href="#" class="text-decoration-none">Terms and Conditions</a>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary w-100">Create Account</button>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <p class="mb-0">Already have an account? 
+                                <a href="{% url 'customer_login' %}{% if next %}?next={{ next }}{% endif %}" 
+                                   class="text-decoration-none">Login</a>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 15px;
+    }
+    
+    .form-control {
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+    }
+    
+    .btn-primary {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+    }
+</style>
+
+{% block extra_js %}
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    const password = this.password.value;
+    const confirmPassword = this.confirm_password.value;
+    
+    if (password !== confirmPassword) {
+        e.preventDefault();
+        alert('Passwords do not match!');
+    }
+});
+</script>
+{% endblock %}
+{% endblock %} 

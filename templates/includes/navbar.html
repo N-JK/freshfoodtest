@@ -1,0 +1,260 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home:home' %}">
+            <!-- <img src="{% static 'media/logo/logo.png' %}" alt="Home Fresh" height="45"> -->
+            <span class="brand-text">Home Fresh</span>
+            <!-- <span class="brand-subtitle">Fresh Food Online</span> -->
+        </a>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'home:home' %}">Home</a>
+                </li>
+                {% if not user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'admin_dashboard:admin_dashboard' %}">Admin</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'seller:login' %}">Seller</a>
+                    </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home:about' %}">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home:about' %}">Contact</a>
+                </li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {{ user.first_name|default:user.username }}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{% url 'buyer:profile' %}">My Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'buyer:order_history' %}">My Orders</a></li>
+                            <li><a class="dropdown-item" href="{% url 'buyer:wishlist' %}">My Wishlist</a></li>
+                            <li><a class="dropdown-item" href="{% url 'buyer:delete_account' %}">Delete Account</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'buyer:logout' %}">Logout</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link cart-icon" href="{% url 'buyer:cart' %}">
+                            <i class="fas fa-shopping-cart"></i>
+                            {% with cart_count=request.user.cart_set.count %}
+                                {% if cart_count > 0 %}
+                                    <span id="cart-count" class="cart-count">{{ cart_count }}</span>
+                                {% else %}
+                                    <span id="cart-count" class="cart-count" style="display: none;">0</span>
+                                {% endif %}
+                            {% endwith %}
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'buyer:login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'buyer:register' %}">
+                            <i class="bi bi-person-plus"></i>Register
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'delivery:login' %}" title="Delivery Login">
+                            <i class="fas fa-truck fs-5"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<style>
+/* Navbar styles */
+.navbar {
+    background-color: #051922;
+    padding: 15px 0;
+    transition: all 0.3s ease;
+}
+
+/* Brand/Logo styles */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #fff;
+}
+
+.brand-text {
+    font-size: 24px;
+    font-weight: 700;
+    margin-left: 10px;
+    color: #F28123;
+}
+
+.brand-subtitle {
+    font-size: 14px;
+    color: #fff;
+    margin-left: 10px;
+    opacity: 0.8;
+}
+
+/* Nav links */
+.navbar-nav .nav-link {
+    color: #fff;
+    font-weight: 500;
+    padding: 8px 20px;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+    font-size: 15px;
+    position: relative;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+    color: #F28123;
+}
+
+.navbar-nav .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background-color: #F28123;
+    transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover::after,
+.navbar-nav .nav-link.active::after {
+    width: 30px;
+}
+
+/* Cart icon */
+.cart-icon {
+    font-size: 18px;
+    padding: 8px 15px !important;
+}
+
+/* Toggler customization */
+.navbar-toggler {
+    border-color: rgba(255,255,255,0.1);
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.7%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Scrolled state */
+.navbar.scrolled {
+    background-color: rgba(5, 25, 34, 0.95);
+    padding: 10px 0;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Add padding to body */
+body {
+    padding-top: 76px;
+}
+
+/* Mobile styles */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        background: #051922;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .navbar-nav .nav-link {
+        padding: 12px 20px;
+        margin: 4px 0;
+        border-radius: 4px;
+    }
+
+    .navbar-nav .nav-link:hover {
+        background-color: rgba(242, 129, 35, 0.1);
+    }
+
+    .brand-subtitle {
+        display: none;
+    }
+
+    body {
+        padding-top: 66px;
+    }
+}
+
+/* Animation for navbar on scroll */
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.navbar.scrolled {
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+/* Cart count badge */
+.cart-count {
+    position: absolute;
+    top: 0;
+    right: 5px;
+    background-color: #F28123;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Dropdown menu styling */
+.dropdown-menu {
+    background-color: #051922;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.dropdown-item {
+    color: #fff;
+    transition: all 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(242, 129, 35, 0.1);
+    color: #F28123;
+}
+
+.dropdown-divider {
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const navbar = document.querySelector('.navbar');
+    
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+});
+</script>

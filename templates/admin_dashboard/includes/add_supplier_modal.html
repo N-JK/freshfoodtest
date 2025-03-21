@@ -1,0 +1,137 @@
+<!-- Add Supplier Modal -->
+<div class="modal fade" id="addSupplierModal" tabindex="-1" aria-labelledby="addSupplierModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addSupplierModalLabel">
+                    <i class="fas fa-plus-circle me-2"></i>Add New Supplier
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="addSupplierForm" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- Business Information -->
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-building me-2"></i>Business Information
+                            </h6>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label for="business_name" class="form-label">Business Name*</label>
+                            <input type="text" class="form-control" id="business_name" name="business_name" required>
+                            <div class="invalid-feedback">Please enter a business name.</div>
+                        </div>
+
+                        <!-- Contact Person Information -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-user me-2"></i>Contact Person Details
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="first_name" class="form-label">First Name*</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            <div class="invalid-feedback">Please enter the first name.</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="last_name" class="form-label">Last Name*</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            <div class="invalid-feedback">Please enter the last name.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email Address*</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                            <div class="invalid-feedback">Please enter a valid email address.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="contact_number" class="form-label">Contact Number*</label>
+                            <input type="tel" class="form-control" id="contact_number" name="contact_number" required>
+                            <div class="invalid-feedback">Please enter a contact number.</div>
+                        </div>
+
+                        <!-- Location and Categories -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-map-marker-alt me-2"></i>Locations & Categories
+                            </h6>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="locations" class="form-label">Service Locations*</label>
+                            <select class="form-select select2-locations" id="locations" name="locations" multiple required>
+                                {% for location in locations %}
+                                <option value="{{ location.id }}">{{ location.name }}, {{ location.city }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">Please select at least one location.</div>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="categories" class="form-label">Product Categories*</label>
+                            <select class="form-select select2-categories" id="categories" name="categories" multiple required>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="invalid-feedback">Please select at least one category.</div>
+                        </div>
+
+                        <!-- Address Information -->
+                        <div class="col-12 mt-4">
+                            <h6 class="text-primary mb-3">
+                                <i class="fas fa-map me-2"></i>Address Information
+                            </h6>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="address" class="form-label">Business Address*</label>
+                            <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                            <div class="invalid-feedback">Please enter the business address.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Add Supplier
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Success Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-check-circle me-2"></i>
+                Supplier added successfully!
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<!-- Error Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span id="errorMessage">An error occurred.</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>

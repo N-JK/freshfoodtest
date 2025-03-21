@@ -1,0 +1,399 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+.dashboard-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.95)),
+                url('{{ MEDIA_URL }}image/delivery-pattern.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    padding: 2rem;
+}
+
+.dashboard-header {
+    margin-bottom: 2rem;
+}
+
+.header-title {
+    font-size: 1.8rem;
+    color: #1e293b;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.header-subtitle {
+    color: #64748b;
+    font-size: 1rem;
+}
+
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stats-card {
+    background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+    border-radius: 20px;
+    padding: 2rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px -5px rgba(79, 70, 229, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('{{ MEDIA_URL }}image/pattern-dots.png') repeat;
+    opacity: 0.1;
+    animation: movePattern 20s linear infinite;
+}
+
+@keyframes movePattern {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(-50%, -50%); }
+}
+
+.stats-title {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.stats-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    position: relative;
+}
+
+.stats-subtitle {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    position: relative;
+}
+
+.orders-container {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.orders-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.orders-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.no-orders {
+    text-align: center;
+    padding: 3rem;
+    background: url('{{ MEDIA_URL }}image/empty-box.png') no-repeat center 2rem;
+    background-size: 100px;
+    padding-top: 8rem;
+    color: #64748b;
+}
+
+.no-orders-icon {
+    font-size: 4rem;
+    color: #e2e8f0;
+    margin-bottom: 1rem;
+}
+
+.performance-container {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.performance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.performance-item {
+    text-align: center;
+}
+
+.performance-title {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.performance-bar {
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    margin: 1rem 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.performance-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease-in-out;
+}
+
+.progress-delivery {
+    background: linear-gradient(to right, #22c55e, #16a34a);
+    width: {{ on_time_delivery_rate }}%;
+}
+
+.progress-rating {
+    background: linear-gradient(to right, #3b82f6, #2563eb);
+    width: calc({{ customer_rating }} / 5 * 100%);
+}
+
+.progress-acceptance {
+    background: linear-gradient(to right, #f59e0b, #d97706);
+    width: {{ order_acceptance_rate }}%;
+}
+
+.performance-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.performance-subtitle {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-online {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-offline {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.btn-go-offline {
+    background: #ef4444;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-go-offline:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+}
+
+.nav-link-custom {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    color: #1e293b;
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.nav-link-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: #4F46E5;
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+    
+    .stats-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .performance-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="header-title">Welcome back, {{ request.user.username }}!</h1>
+                <p class="header-subtitle">Here's your delivery dashboard for today</p>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="{% url 'delivery:orders' %}" class="nav-link-custom">
+                    <i class="fas fa-list-alt me-2"></i>Orders
+                </a>
+                <a href="{% url 'delivery:profile' %}" class="nav-link-custom">
+                    <i class="fas fa-user me-2"></i>Profile
+                </a>
+                <span class="status-badge status-online">
+                    <i class="fas fa-circle me-2"></i>Available
+                </span>
+                <button class="btn-go-offline">Go Offline</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-container">
+        <div class="stats-card">
+            <div class="stats-title">Today's Deliveries</div>
+            <div class="stats-value">{{ todays_deliveries }}</div>
+            <div class="stats-subtitle">Orders completed today</div>
+        </div>
+
+        <div class="stats-card">
+            <div class="stats-title">Active Orders</div>
+            <div class="stats-value">{{ active_orders }}</div>
+            <div class="stats-subtitle">Currently in progress</div>
+        </div>
+
+        <div class="stats-card">
+            <div class="stats-title">Today's Earnings</div>
+            <div class="stats-value">₹{{ todays_earnings }}</div>
+            <div class="stats-subtitle">Total earnings for today</div>
+        </div>
+    </div>
+
+    <div class="orders-container">
+        <div class="orders-header">
+            <h2 class="orders-title">Active Orders</h2>
+        </div>
+
+        {% if active_orders_list %}
+            <!-- Add your active orders list here -->
+        {% else %}
+            <div class="no-orders">
+                <i class="fas fa-box-open no-orders-icon"></i>
+                <h3>No active orders at the moment</h3>
+                <p>New orders will appear here when they're assigned to you</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="performance-container">
+        <h2 class="orders-title mb-4">Performance Overview</h2>
+        <div class="performance-grid">
+            <div class="performance-item">
+                <div class="performance-title">On Time Delivery Rate</div>
+                <div class="performance-bar">
+                    <div class="performance-progress progress-delivery"></div>
+                </div>
+                <div class="performance-value">95%</div>
+                <div class="performance-subtitle">Last 30 days</div>
+            </div>
+
+            <div class="performance-item">
+                <div class="performance-title">Customer Rating</div>
+                <div class="performance-bar">
+                    <div class="performance-progress progress-rating"></div>
+                </div>
+                <div class="performance-value">4.8/5</div>
+                <div class="performance-subtitle">Based on 124 ratings</div>
+            </div>
+
+            <div class="performance-item">
+                <div class="performance-title">Order Acceptance Rate</div>
+                <div class="performance-bar">
+                    <div class="performance-progress progress-acceptance"></div>
+                </div>
+                <div class="performance-value">92%</div>
+                <div class="performance-subtitle">Last 30 days</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation for stats numbers
+    const statsValues = document.querySelectorAll('.stats-value');
+    statsValues.forEach(value => {
+        const finalValue = value.textContent;
+        value.textContent = '0';
+        let currentValue = 0;
+        const increment = finalValue / 30;
+        const timer = setInterval(() => {
+            currentValue += increment;
+            if (currentValue >= finalValue) {
+                clearInterval(timer);
+                value.textContent = finalValue;
+            } else {
+                value.textContent = Math.round(currentValue);
+            }
+        }, 30);
+    });
+
+    // Go Offline button
+    const goOfflineBtn = document.querySelector('.btn-go-offline');
+    goOfflineBtn.addEventListener('click', function() {
+        const statusBadge = document.querySelector('.status-badge');
+        if (statusBadge.classList.contains('status-online')) {
+            statusBadge.classList.remove('status-online');
+            statusBadge.classList.add('status-offline');
+            statusBadge.innerHTML = '<i class="fas fa-circle me-2"></i>Offline';
+            this.textContent = 'Go Online';
+            this.style.background = '#22c55e';
+        } else {
+            statusBadge.classList.remove('status-offline');
+            statusBadge.classList.add('status-online');
+            statusBadge.innerHTML = '<i class="fas fa-circle me-2"></i>Available';
+            this.textContent = 'Go Offline';
+            this.style.background = '#ef4444';
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,458 @@
+{% extends 'seller/layouts/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+.revenue-card {
+    border-radius: 15px;
+    border: none;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    background: #fff;
+}
+
+.revenue-card:hover {
+    transform: translateY(-5px);
+}
+
+.revenue-card .card-body {
+    padding: 1.5rem;
+    position: relative;
+    z-index: 1;
+}
+
+.revenue-card .icon-circle {
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.2;
+    transition: all 0.3s ease;
+}
+
+.revenue-card:hover .icon-circle {
+    opacity: 0.3;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.revenue-card .card-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.75rem;
+}
+
+.revenue-card .card-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0;
+    line-height: 1.2;
+}
+
+.revenue-card .card-trend {
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.revenue-card.total-revenue {
+    background: linear-gradient(135deg, #6366F1 0%, #4338CA 100%);
+    color: white;
+}
+
+.revenue-card.monthly-average {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+}
+
+.revenue-card.top-category {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    color: white;
+}
+
+.revenue-card.total-orders {
+    background: linear-gradient(135deg, #EC4899 0%, #BE185D 100%);
+    color: white;
+}
+
+.revenue-card .trend-up {
+    color: #A7F3D0;
+}
+
+.revenue-card .trend-down {
+    color: #FECDD3;
+}
+
+.card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('{% get_media_prefix %}image/card-pattern.png');
+    background-size: cover;
+    opacity: 0.1;
+    mix-blend-mode: soft-light;
+}
+
+.chart-area {
+    height: 400px;
+    position: relative;
+}
+
+.chart-pie {
+    height: 350px;
+    position: relative;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.badge {
+    padding: 0.5em 1em;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+.card-header {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+}
+
+.dropdown-menu {
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    border: none;
+}
+
+.table thead th {
+    border-top: none;
+    background-color: #f8f9fc;
+    color: #4e73df;
+    font-weight: 600;
+}
+
+.bg-success {
+    background-color: #1cc88a !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Revenue Analytics</h1>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="downloadPDF()">
+                <i class="fas fa-file-pdf"></i> Download PDF
+            </button>
+            <button class="btn btn-success" onclick="downloadExcel()">
+                <i class="fas fa-file-excel"></i> Download Excel
+            </button>
+        </div>
+    </div>
+
+    <!-- Revenue Overview Cards -->
+    <div class="row">
+        <!-- Total Revenue Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card revenue-card total-revenue shadow">
+                <div class="card-body">
+                    <div class="card-overlay"></div>
+                    <div class="icon-circle">
+                        <i class="fas fa-rupee-sign fa-3x"></i>
+                    </div>
+                    <h6 class="card-title">Total Revenue</h6>
+                    <h2 class="card-value">₹{{ total_revenue|floatformat:2 }}</h2>
+                    <div class="card-trend">
+                        <i class="fas fa-arrow-up trend-up"></i>
+                        <span>12.5% from last month</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Average Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card revenue-card monthly-average shadow">
+                <div class="card-body">
+                    <div class="card-overlay"></div>
+                    <div class="icon-circle">
+                        <i class="fas fa-chart-line fa-3x"></i>
+                    </div>
+                    <h6 class="card-title">Monthly Average</h6>
+                    <h2 class="card-value">₹{{ monthly_revenue.last.revenue|default:0|floatformat:2 }}</h2>
+                    <div class="card-trend">
+                        <i class="fas fa-arrow-up trend-up"></i>
+                        <span>8.2% from previous</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Category Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card revenue-card top-category shadow">
+                <div class="card-body">
+                    <div class="card-overlay"></div>
+                    <div class="icon-circle">
+                        <i class="fas fa-tags fa-3x"></i>
+                    </div>
+                    <h6 class="card-title">Top Category</h6>
+                    <h2 class="card-value">{{ category_revenue.0.product__category__name|default:"N/A" }}</h2>
+                    <div class="card-trend">
+                        <i class="fas fa-arrow-up trend-up"></i>
+                        <span>Most profitable</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Orders Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card revenue-card total-orders shadow">
+                <div class="card-body">
+                    <div class="card-overlay"></div>
+                    <div class="icon-circle">
+                        <i class="fas fa-shopping-cart fa-3x"></i>
+                    </div>
+                    <h6 class="card-title">Total Orders</h6>
+                    <h2 class="card-value">{{ recent_transactions|length }}</h2>
+                    <div class="card-trend">
+                        <i class="fas fa-arrow-up trend-up"></i>
+                        <span>5 new today</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row">
+        <!-- Monthly Revenue Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Monthly Revenue</h6>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="timeRangeDropdown" data-toggle="dropdown">
+                            Last 12 Months
+                        </button>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="#" onclick="updateChart('12months')">Last 12 Months</a>
+                            <a class="dropdown-item" href="#" onclick="updateChart('6months')">Last 6 Months</a>
+                            <a class="dropdown-item" href="#" onclick="updateChart('3months')">Last 3 Months</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="monthlyRevenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Revenue Chart -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Revenue by Category</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie">
+                        <canvas id="categoryRevenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Recent Transactions</h6>
+            <div class="btn-group">
+                <button class="btn btn-sm btn-outline-secondary" onclick="filterTransactions('all')">All</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="filterTransactions('today')">Today</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="filterTransactions('week')">This Week</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="filterTransactions('month')">This Month</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover" id="transactionsTable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_transactions %}
+                        <tr>
+                            <td>{{ order.id }}</td>
+                            <td>{{ order.created_at|date:"M d, Y" }}</td>
+                            <td>{{ order.user.get_full_name }}</td>
+                            <td>{{ order.order_items.count }} items</td>
+                            <td>₹{{ order.seller_revenue|floatformat:2 }}</td>
+                            <td>
+                                <span class="badge bg-success">{{ order.order_status }}</span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info" onclick="viewOrderDetails({{ order.id }})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Custom JavaScript -->
+<script>
+// Monthly Revenue Chart
+const monthlyData = {{ monthly_revenue|safe }};
+const monthlyLabels = monthlyData.map(item => {
+    const date = new Date(item.month);
+    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+});
+const monthlyValues = monthlyData.map(item => item.revenue);
+
+const monthlyChart = new Chart(document.getElementById('monthlyRevenueChart'), {
+    type: 'line',
+    data: {
+        labels: monthlyLabels,
+        datasets: [{
+            label: 'Monthly Revenue',
+            data: monthlyValues,
+            borderColor: '#4e73df',
+            backgroundColor: 'rgba(78, 115, 223, 0.05)',
+            tension: 0.3,
+            fill: true
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.05)'
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                }
+            }
+        }
+    }
+});
+
+// Category Revenue Chart
+const categoryData = {{ category_revenue|safe }};
+const categoryLabels = categoryData.map(item => item.product__category__name);
+const categoryValues = categoryData.map(item => item.revenue);
+
+const categoryChart = new Chart(document.getElementById('categoryRevenueChart'), {
+    type: 'doughnut',
+    data: {
+        labels: categoryLabels,
+        datasets: [{
+            data: categoryValues,
+            backgroundColor: [
+                '#4e73df',
+                '#1cc88a',
+                '#36b9cc',
+                '#f6c23e',
+                '#e74a3b'
+            ]
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        },
+        cutout: '70%'
+    }
+});
+
+// Download Functions
+function downloadPDF() {
+    // Add PDF download logic
+    alert('Downloading PDF...');
+}
+
+function downloadExcel() {
+    // Add Excel download logic
+    alert('Downloading Excel...');
+}
+
+// Chart Update Function
+function updateChart(timeRange) {
+    // Add chart update logic
+    document.getElementById('timeRangeDropdown').innerText = 
+        timeRange === '12months' ? 'Last 12 Months' :
+        timeRange === '6months' ? 'Last 6 Months' : 'Last 3 Months';
+}
+
+// Transaction Filter Function
+function filterTransactions(period) {
+    // Add transaction filtering logic
+}
+
+// Order Details Function
+function viewOrderDetails(orderId) {
+    // Add order details view logic
+    window.location.href = `/seller/orders/${orderId}`;
+}
+</script>
+{% endblock %}

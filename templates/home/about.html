@@ -1,0 +1,393 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    /* Hero Section */
+    .about-hero {
+        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{% static "media/image/food_2.jpg" %}') no-repeat center center;
+        background-size: cover;
+        padding: 150px 0;
+        color: white;
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    /* Why Home Fresh Section */
+    .about-section {
+        padding: 80px 0;
+        background: #fff;
+    }
+
+    .section-title {
+        font-size: 42px;
+        font-weight: 700;
+        margin-bottom: 40px;
+        color: #051922;
+    }
+
+    .text-orange {
+        color: #F28123;
+    }
+
+    .features-grid {
+        display: grid;
+        gap: 30px;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        min-width: 60px;
+        border: 2px dashed #F28123;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #F28123;
+        font-size: 24px;
+        transition: all 0.3s ease;
+    }
+
+    .feature-content h4 {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #051922;
+    }
+
+    .feature-content p {
+        font-size: 15px;
+        color: #555;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    .about-image {
+        position: relative;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .about-image img {
+        width: 100%;
+        height: auto;
+        transition: transform 0.3s ease;
+    }
+
+    .about-image:hover img {
+        transform: scale(1.05);
+    }
+
+    /* Values Section */
+    .values-section {
+        background: #f5f5f5;
+        padding: 80px 0;
+    }
+
+    .value-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        transition: transform 0.3s ease;
+        text-align: center;
+    }
+
+    .value-card:hover {
+        transform: translateY(-10px);
+    }
+
+    .value-icon {
+        font-size: 2.5rem;
+        color: #F28123;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Team Section */
+    .team-section {
+        padding: 80px 0;
+    }
+
+    .team-member {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .team-member img {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        margin-bottom: 1.5rem;
+        object-fit: cover;
+        border: 5px solid #F28123;
+        transition: transform 0.3s ease;
+    }
+
+    .team-member:hover img {
+        transform: scale(1.1);
+    }
+
+    .team-member h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: #051922;
+    }
+
+    .social-links {
+        margin-top: 1rem;
+    }
+
+    .social-links a {
+        color: #051922;
+        margin: 0 10px;
+        font-size: 1.2rem;
+        transition: color 0.3s ease;
+    }
+
+    .social-links a:hover {
+        color: #F28123;
+    }
+
+    /* CTA Section */
+    .cta-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('{% static "media/image/food_1.jpg" %}') no-repeat center center;
+        background-size: cover;
+        padding: 100px 0;
+        color: white;
+        text-align: center;
+    }
+
+    .btn-primary-custom {
+        background: #F28123;
+        color: white;
+        padding: 15px 40px;
+        border-radius: 30px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+        border: none;
+    }
+
+    .btn-primary-custom:hover {
+        background: #e67612;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(242, 129, 35, 0.4);
+        color: white;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .feature-item:nth-child(2) { animation-delay: 0.2s; }
+    .feature-item:nth-child(3) { animation-delay: 0.4s; }
+    .feature-item:nth-child(4) { animation-delay: 0.6s; }
+
+    /* Responsive Styles */
+    @media (max-width: 991px) {
+        .about-image {
+            margin-top: 40px;
+        }
+
+        .section-title {
+            font-size: 36px;
+        }
+
+        .features-grid {
+            gap: 20px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .feature-item {
+            flex-direction: column;
+            text-align: center;
+            align-items: center;
+        }
+
+        .feature-icon {
+            margin-bottom: 15px;
+        }
+
+        .about-hero {
+            padding: 100px 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="about-hero">
+    <div class="container">
+        <h1 class="display-4 mb-4">About Home Fresh</h1>
+        <p class="lead">Delivering Fresh, Local, and Sustainable Food to Your Doorstep</p>
+    </div>
+</section>
+
+<!-- Why Home Fresh Section -->
+<section class="about-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="why-title mb-4">
+                    <h2 class="section-title">Why <span class="text-orange">Home Fresh</span></h2>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Home Delivery</h4>
+                            <p>Fast and reliable delivery service right to your doorstep, ensuring your food arrives fresh and on time.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-tag"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Best Price</h4>
+                            <p>Competitive prices and great value for high-quality fresh produce and food items.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Custom Box</h4>
+                            <p>Customize your food box according to your preferences and dietary requirements.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-sync"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h4>Quick Refund</h4>
+                            <p>Hassle-free refund process ensuring customer satisfaction with every purchase.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="about-image">
+                    <img src="{% static 'media/image/food_3.jpg' %}" alt="Delivery Service" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Values Section -->
+<section class="values-section">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Our Values</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <h3>Sustainability</h3>
+                    <p>We're committed to sustainable practices in everything we do, from sourcing to delivery.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3>Quality</h3>
+                    <p>We never compromise on quality, ensuring only the best products reach your table.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="value-card">
+                    <div class="value-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Community</h3>
+                    <p>We support local farmers and producers, building a stronger food community.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="team-section">
+    <div class="container">
+        <h2 class="section-title text-center mb-5">Our Team</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="team-member">
+                    <img src="{% static 'media/image/food_1.jpg' %}" alt="Team Member">
+                    <h3>John Doe</h3>
+                    <p class="text-muted">Founder & CEO</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="team-member">
+                    <img src="{% static 'media/image/food_2.jpg' %}" alt="Team Member">
+                    <h3>Jane Smith</h3>
+                    <p class="text-muted">Operations Director</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="team-member">
+                    <img src="{% static 'media/image/food_4.jpg' %}" alt="Team Member">
+                    <h3>Mike Johnson</h3>
+                    <p class="text-muted">Head of Procurement</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container text-center">
+        <h2 class="mb-4">Want to Know More?</h2>
+        <p class="lead mb-4">We'd love to hear from you and answer any questions you may have.</p>
+        <a href="{% url 'home:home' %}" class="btn-primary-custom">Back to Home</a>
+    </div>
+</section>
+{% endblock %}

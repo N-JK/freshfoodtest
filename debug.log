@@ -1,0 +1,81 @@
+INFO 2025-02-17 14:40:10,061 autoreload 17132 19776 Watching for file changes with StatReloader
+INFO 2025-02-17 14:40:31,133 basehttp 17132 10056 "GET /admin-dashboard/suppliers/add/ HTTP/1.1" 200 16857
+INFO 2025-02-17 14:41:05,221 views 17132 18144 Form data received: <QueryDict: {'csrfmiddlewaretoken': ['zDb8LA5sm9Frrdlka5bgrgnSyKhfrZ1g0lvdECWA0pkDa6kFhJNec0thRtU2N5E3'], 'first_name': ['Midhun'], 'last_name': ['TJ'], 'email': ['midhunthelappurath@gmail.com'], 'business_name': ['Royal Farm'], 'contact_number': ['6282497158'], 'address': ['Uzhavoor East P.O Kottayam'], 'locations': ['1', '3'], 'categories': ['1', '3']}>
+INFO 2025-02-17 14:41:05,270 views 17132 18144 Form is valid, creating supplier...
+INFO 2025-02-17 14:41:07,840 views 17132 18144 Created user: royalfarm2 with email: midhunthelappurath@gmail.com
+INFO 2025-02-17 14:41:07,861 views 17132 18144 Created supplier: Royal Farm
+INFO 2025-02-17 14:41:07,919 views 17132 18144 Set locations and categories
+INFO 2025-02-17 14:41:07,924 views 17132 18144 Attempting to send welcome email to midhunthelappurath@gmail.com
+INFO 2025-02-17 14:41:08,129 utils 17132 18144 Sending welcome email to midhunthelappurath@gmail.com
+DEBUG 2025-02-17 14:41:08,131 utils 17132 18144 Email context: {'username': 'royalfarm2', 'login_url': 'http://localhost:8000/supplier/login/'}
+INFO 2025-02-17 14:41:14,206 utils 17132 18144 Welcome email sent successfully
+INFO 2025-02-17 14:41:14,266 views 17132 18144 Welcome email sent successfully
+INFO 2025-02-17 14:41:14,414 basehttp 17132 18144 "POST /admin-dashboard/suppliers/add/ HTTP/1.1" 302 0
+INFO 2025-02-17 14:41:14,686 basehttp 17132 18144 "GET /admin-dashboard/suppliers/ HTTP/1.1" 200 14177
+INFO 2025-02-17 14:41:38,808 basehttp 17132 13052 "GET /admin-dashboard/locations/ HTTP/1.1" 200 29208
+INFO 2025-02-17 14:41:41,574 basehttp 17132 7112 "GET /admin-dashboard/suppliers/ HTTP/1.1" 200 13842
+INFO 2025-02-17 14:41:45,794 basehttp 17132 16252 "GET /admin-dashboard/categories/ HTTP/1.1" 200 25114
+INFO 2025-02-17 14:41:45,862 basehttp 17132 16252 "GET /media/categories/raw-chicken-breast-fillets-wooden-cutting-board-with-herbs-spices.jpg HTTP/1.1" 304 0
+INFO 2025-02-17 14:41:45,874 basehttp 17132 18604 "GET /media/categories/pexels-mali-65175.jpg HTTP/1.1" 304 0
+INFO 2025-02-17 14:41:53,288 basehttp 17132 12532 "GET /admin-dashboard/logout/ HTTP/1.1" 302 0
+INFO 2025-02-17 14:41:53,306 basehttp 17132 12532 "GET /admin-dashboard/login/ HTTP/1.1" 200 6205
+INFO 2025-02-17 14:41:55,711 basehttp 17132 7420 "GET / HTTP/1.1" 200 23198
+INFO 2025-02-17 14:41:55,780 basehttp 17132 7420 "GET /media/categories/pexels-janetrangdoan-1132047_xyrQwGN.jpg HTTP/1.1" 304 0
+INFO 2025-02-17 14:42:00,860 basehttp 17132 7420 "GET /seller/login/ HTTP/1.1" 200 9226
+ERROR 2025-02-17 14:42:25,413 log 17132 11156 Internal Server Error: /seller/login/
+Traceback (most recent call last):
+  File "C:\Users\MIDHUN\Desktop\fresh_food_final\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MIDHUN\Desktop\fresh_food_final\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MIDHUN\Desktop\fresh_food_final\seller\views.py", line 173, in seller_login
+    user = User.objects.get(email=email)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MIDHUN\Desktop\fresh_food_final\env\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\MIDHUN\Desktop\fresh_food_final\env\Lib\site-packages\django\db\models\query.py", line 652, in get
+    raise self.model.MultipleObjectsReturned(
+django.contrib.auth.models.User.MultipleObjectsReturned: get() returned more than one User -- it returned 4!
+ERROR 2025-02-17 14:42:25,481 basehttp 17132 11156 "POST /seller/login/ HTTP/1.1" 500 85820
+INFO 2025-02-17 14:42:34,782 basehttp 17132 1288 "GET /seller/login/ HTTP/1.1" 200 8884
+INFO 2025-02-17 14:42:38,448 basehttp 17132 1288 "GET / HTTP/1.1" 200 23198
+INFO 2025-02-18 09:56:01,836 autoreload 5016 3500 Watching for file changes with StatReloader
+INFO 2025-02-18 09:58:24,908 basehttp 5016 11876 "GET / HTTP/1.1" 200 23198
+INFO 2025-02-18 09:58:25,075 basehttp 5016 7156 "GET /media/categories/pexels-mali-65175.jpg HTTP/1.1" 304 0
+WARNING 2025-02-18 09:58:25,109 basehttp 5016 11876 "GET /static/css/home.css HTTP/1.1" 404 1963
+INFO 2025-02-18 09:58:25,113 basehttp 5016 7156 "GET /media/categories/raw-chicken-breast-fillets-wooden-cutting-board-with-herbs-spices.jpg HTTP/1.1" 304 0
+INFO 2025-02-18 09:58:25,167 basehttp 5016 6360 "GET /media/categories/pexels-janetrangdoan-1132047_xyrQwGN.jpg HTTP/1.1" 304 0
+WARNING 2025-02-18 09:58:26,924 log 5016 17612 Not Found: /favicon.ico
+WARNING 2025-02-18 09:58:26,935 basehttp 5016 17612 "GET /favicon.ico HTTP/1.1" 404 4632
+INFO 2025-02-18 09:59:19,007 basehttp 5016 17484 "GET / HTTP/1.1" 200 23198
+WARNING 2025-02-18 09:59:19,565 basehttp 5016 17484 "GET /static/css/home.css HTTP/1.1" 404 1963
+INFO 2025-02-18 09:59:23,456 basehttp 5016 7520 "GET /admin-dashboard/ HTTP/1.1" 302 0
+INFO 2025-02-18 09:59:23,572 basehttp 5016 7520 "GET /admin-dashboard/login/?next=/admin-dashboard/ HTTP/1.1" 200 6205
+INFO 2025-02-18 10:01:12,703 basehttp 5016 19700 "GET / HTTP/1.1" 200 23198
+WARNING 2025-02-18 10:01:14,395 basehttp 5016 19700 "GET /static/css/home.css HTTP/1.1" 404 1963
+INFO 2025-02-18 10:01:16,562 basehttp 5016 6088 "GET /media/categories/pexels-mali-65175.jpg HTTP/1.1" 200 236092
+INFO 2025-02-18 10:01:16,653 basehttp 5016 19520 "GET /media/categories/pexels-janetrangdoan-1132047_xyrQwGN.jpg HTTP/1.1" 200 363278
+INFO 2025-02-18 10:02:18,128 basehttp 5016 20712 "GET /media/categories/raw-chicken-breast-fillets-wooden-cutting-board-with-herbs-spices.jpg HTTP/1.1" 200 11786647
+INFO 2025-02-18 10:04:01,387 basehttp 5016 16392 "GET / HTTP/1.1" 200 23198
+WARNING 2025-02-18 10:04:02,048 basehttp 5016 16392 "GET /static/css/home.css HTTP/1.1" 404 1963
+INFO 2025-02-18 10:04:35,449 basehttp 5016 20960 "GET /admin-dashboard/ HTTP/1.1" 302 0
+INFO 2025-02-18 10:04:35,549 basehttp 5016 20960 "GET /admin-dashboard/login/?next=/admin-dashboard/ HTTP/1.1" 200 6205
+INFO 2025-02-18 10:04:35,915 basehttp 5016 20960 "GET /admin-dashboard/ HTTP/1.1" 302 0
+INFO 2025-02-18 10:04:36,023 basehttp 5016 20960 "GET /admin-dashboard/login/?next=/admin-dashboard/ HTTP/1.1" 200 6205
+INFO 2025-02-18 10:04:57,632 basehttp 5016 7400 "POST /admin-dashboard/login/ HTTP/1.1" 302 0
+INFO 2025-02-18 10:04:57,853 basehttp 5016 7400 "GET /admin-dashboard/ HTTP/1.1" 200 14508
+INFO 2025-02-18 10:05:01,740 basehttp 5016 7400 "GET /admin-dashboard/products/ HTTP/1.1" 200 55454
+WARNING 2025-02-18 10:05:01,933 basehttp 5016 7400 "GET /static/css/admin_products.css HTTP/1.1" 404 1993
+INFO 2025-02-18 10:05:25,776 basehttp 5016 13552 "GET /admin-dashboard/suppliers/ HTTP/1.1" 200 14077
+INFO 2025-02-18 10:05:27,660 basehttp 5016 12888 "GET /admin-dashboard/products/ HTTP/1.1" 200 55454
+WARNING 2025-02-18 10:05:27,791 basehttp 5016 12888 "GET /static/css/admin_products.css HTTP/1.1" 404 1993
+WARNING 2025-02-18 10:25:40,504 basehttp 5016 19836 "GET /static/css/admin_products.css HTTP/1.1" 404 1993
+INFO 2025-02-18 10:25:45,502 basehttp 5016 556 "GET /admin-dashboard/logout/ HTTP/1.1" 302 0
+INFO 2025-02-18 10:25:45,743 basehttp 5016 556 "GET /admin-dashboard/login/ HTTP/1.1" 200 6205
+INFO 2025-02-18 10:25:49,593 basehttp 5016 556 "GET / HTTP/1.1" 200 23198
+INFO 2025-02-18 10:25:50,386 basehttp 5016 3516 "GET /static/css/home.css HTTP/1.1" 200 4684
+WARNING 2025-02-18 10:25:51,506 basehttp 5016 3516 "GET /static/images/hero-bg.jpg HTTP/1.1" 404 1981
+INFO 2025-02-18 10:26:44,506 autoreload 5016 3500 C:\Users\MIDHUN\Desktop\fresh_food_final\admin_dashboard\views.py changed, reloading.

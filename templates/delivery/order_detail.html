@@ -1,0 +1,297 @@
+{% extends 'delivery/base.html' %}
+
+{% block page_title %}Order #{{ order.id }}{% endblock %}
+
+{% block page_actions %}
+{% if order.order_status == 'out_for_delivery' %}
+<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#otpVerificationModal">
+    <i class="fas fa-check"></i> Mark as Delivered
+</button>
+{% endif %}
+{% endblock %}
+
+{% block main_content %}
+<!-- OTP Verification Modal -->
+<div class="modal fade" id="otpVerificationModal" tabindex="-1" aria-labelledby="otpVerificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="otpVerificationModalLabel">Delivery Verification</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Phone Verification Step -->
+                <div id="phoneVerificationStep">
+                    <p>Please verify the customer's phone number to proceed with delivery confirmation.</p>
+                    <div class="mb-3">
+                        <label for="phoneNumber" class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" id="phoneNumber" value="{{ order.phone_number }}" pattern="[0-9]{10}" maxlength="10" placeholder="Enter 10-digit phone number">
+                        <div class="form-text">Enter a 10-digit phone number without spaces or special characters</div>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="sendOTP()">Send OTP</button>
+                </div>
+
+                <!-- OTP Verification Step (Initially Hidden) -->
+                <div id="otpVerificationStep" style="display: none;">
+                    <p>An OTP has been sent to the customer's phone number.</p>
+                    <div class="mb-3">
+                        <label for="otpInput" class="form-label">Enter OTP</label>
+                        <input type="text" class="form-control" id="otpInput" placeholder="Enter 6-digit OTP">
+                    </div>
+                    <form method="POST" action="{% url 'delivery:verify_otp' order.id %}" id="otpForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="otp" id="otpFormInput">
+                        <button type="submit" class="btn btn-success">Verify & Complete Delivery</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Details -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Order Items</h5>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.order_items.all %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if item.product.image %}
+                                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                        {% endif %}
+                                        <div>
+                                            <h6 class="mb-0">{{ item.product.name }}</h6>
+                                            <small class="text-muted">{{ item.product.category.name }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ item.quantity }}</td>
+                                <td>₹{{ item.price }}</td>
+                                <td>₹{{ item.get_total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>Total Amount:</strong></td>
+                                <td><strong>₹{{ order.total_amount }}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Details -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Customer Details</h5>
+                <div class="mb-3">
+                    <label class="text-muted d-block">Name</label>
+                    <div>{{ order.user.get_full_name }}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted d-block">Phone</label>
+                    <div>{{ order.phone_number }}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="text-muted d-block">Delivery Address</label>
+                    <div>{{ order.shipping_address }}</div>
+                </div>
+                <div>
+                    <label class="text-muted d-block">Payment Method</label>
+                    <div>{{ order.get_payment_method_display }}</div>
+                    {% if order.payment_method == 'cod' %}
+                        <div class="alert alert-info mt-2">
+                            <i class="bi bi-info-circle"></i> Collect ₹{{ order.total_amount }} from customer
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Status -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Order Status</h5>
+                <div class="order-timeline mt-3">
+                    <div class="timeline-item {% if order.order_status == 'pending' or order.order_status == 'confirmed' or order.order_status == 'out_for_delivery' or order.order_status == 'delivered' %}active{% endif %}">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h6>Payment</h6>
+                            <small>{% if order.payment_status == 'paid' %}Paid via {{ order.payment_method }}{% else %}Pending payment{% endif %}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item {% if order.order_status == 'confirmed' or order.order_status == 'out_for_delivery' or order.order_status == 'delivered' %}active{% endif %}">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h6>Order Confirmation</h6>
+                            <small>{% if order.order_status == 'confirmed' or order.order_status == 'out_for_delivery' or order.order_status == 'delivered' %}Order confirmed by seller{% else %}Waiting for confirmation{% endif %}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item {% if order.order_status == 'out_for_delivery' or order.order_status == 'delivered' %}active{% endif %}">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h6>Out for Delivery</h6>
+                            <small>
+                                {% if order.order_status == 'out_for_delivery' or order.order_status == 'delivered' %}
+                                    {% if order.delivery_boy %}
+                                        Being delivered by {{ order.delivery_boy.name }}
+                                    {% else %}
+                                        Out for delivery
+                                    {% endif %}
+                                {% else %}
+                                    Waiting to be dispatched
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item {% if order.order_status == 'delivered' %}active{% endif %}">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <h6>Delivered</h6>
+                            <small>{% if order.order_status == 'delivered' %}Order completed{% else %}Pending delivery{% endif %}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.order-timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.order-timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 45px;
+    margin-bottom: 20px;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: 8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #e9ecef;
+    border: 2px solid #fff;
+}
+
+.timeline-item.active .timeline-dot {
+    background: #28a745;
+}
+
+.timeline-content {
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.timeline-content h6 {
+    margin: 0;
+    color: #495057;
+}
+
+.timeline-content small {
+    color: #6c757d;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function sendOTP() {
+    const phoneNumber = document.getElementById('phoneNumber').value;
+    
+    // Validate phone number
+    if (!/^\d{10}$/.test(phoneNumber)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Phone Number',
+            text: 'Please enter a valid 10-digit phone number'
+        });
+        return;
+    }
+
+    fetch("{% url 'delivery:send_otp' order.id %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            phone_number: phoneNumber
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show OTP input form
+            document.getElementById('phoneVerificationStep').style.display = 'none';
+            document.getElementById('otpVerificationStep').style.display = 'block';
+            // Show success message
+            Swal.fire({
+                icon: 'success',
+                title: 'OTP Sent!',
+                text: 'Please ask the customer for the OTP sent to their phone.',
+                timer: 3000
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'Failed to send OTP. Please try again.'
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to send OTP. Please try again.'
+        });
+    });
+}
+
+// Handle OTP form submission
+document.getElementById('otpForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const otp = document.getElementById('otpInput').value;
+    document.getElementById('otpFormInput').value = otp;
+    this.submit();
+});
+</script>
+{% endblock %}

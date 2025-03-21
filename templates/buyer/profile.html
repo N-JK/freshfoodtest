@@ -1,0 +1,435 @@
+{% extends 'buyer/base_buyer.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* Toast Notification Styles */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.toast {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    color: white;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    min-width: 250px;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast-success {
+    background-color: #28a745;
+}
+
+.toast-error {
+    background-color: #dc3545;
+}
+
+.toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    background-color: rgba(255,255,255,0.7);
+    width: 100%;
+    transform-origin: left;
+    animation: toast-progress 3s linear forwards;
+}
+
+@keyframes toast-progress {
+    0% { transform: scaleX(1); }
+    100% { transform: scaleX(0); }
+}
+
+.toast-icon {
+    margin-right: 12px;
+    font-size: 1.2rem;
+}
+
+.toast-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.toast-close:hover {
+    opacity: 1;
+}
+.profile-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.95)),
+                url('{{ MEDIA_URL }}image/profile-pattern.jpg');
+    background-size: cover;
+    background-position: center;
+    padding: 2rem;
+}
+
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+}
+
+.profile-sidebar {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+}
+
+.profile-main {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.profile-photo-section {
+    text-align: center;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.profile-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #4F46E5;
+    padding: 4px;
+    margin-bottom: 1rem;
+}
+
+.profile-photo-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    border: 4px solid #4F46E5;
+    padding: 4px;
+}
+
+.profile-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.profile-status {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 2rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #4F46E5;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    color: #1e293b;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-title i {
+    color: #4F46E5;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    color: #1e293b;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #4F46E5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.photo-upload {
+    position: absolute;
+    bottom: 0;
+    right: 50%;
+    transform: translateX(50%);
+}
+
+.upload-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #4F46E5;
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.upload-btn:hover {
+    background: #4338CA;
+    transform: translateY(-2px);
+}
+
+.upload-btn input[type="file"] {
+    display: none;
+}
+
+.btn-update {
+    width: 100%;
+    padding: 0.75rem;
+    background: #4F46E5;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-update:hover {
+    background: #4338CA;
+    transform: translateY(-2px);
+}
+
+.address-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+@media (max-width: 768px) {
+    .profile-container {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block buyer_content %}
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Hidden Messages -->
+{% if messages %}
+    {% for message in messages %}
+        {% if 'delete_account' not in message.tags %}  <!-- Ignore delete_account messages -->
+            <div class="d-none alert-message" 
+                 data-message="{{ message }}" 
+                 data-type="{{ message.tags }}">
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+<div class="profile-page">
+    <div class="profile-container">
+        <div class="profile-sidebar">
+            <div class="profile-photo-section">
+                {% if profile.profile_picture %}
+                    <img src="{{ profile.profile_picture.url }}" alt="Profile Photo" class="profile-photo">
+                {% else %}
+                    <div class="profile-photo-placeholder">
+                        <i class="fas fa-user fa-3x text-gray-400"></i>
+                    </div>
+                {% endif %}
+                <div class="photo-upload">
+                    <label class="upload-btn">
+                        <i class="fas fa-camera"></i>
+                        <input type="file" name="profile_picture" accept="image/*" form="profile-form">
+                    </label>
+                </div>
+            </div>
+
+            <h2 class="profile-name">{{ request.user.get_full_name|default:request.user.username }}</h2>
+            <p class="profile-status">Buyer Account</p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">{{ orders.count }}</div>
+                    <div class="stat-label">Orders</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ wishlist_count }}</div>
+                    <div class="stat-label">Wishlist</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-main">
+            <h2 class="section-title">
+                <i class="fas fa-user"></i>
+                Personal Information
+            </h2>
+
+            <form id="profile-form" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" class="form-control" value="{{ profile.phone }}" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="address">Delivery Address</label>
+                    <textarea id="address" name="address" class="form-control address-textarea" required>{{ profile.address }}</textarea>
+                </div>
+
+                <button type="submit" class="btn-update">
+                    <i class="fas fa-save"></i>
+                    Update Profile
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    // Toast Notification Function
+    function showToast(message, type = 'info') {
+        const toastContainer = document.getElementById('toastContainer');
+        
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type} show`;
+        
+        const iconMap = {
+            'success': 'fa-check-circle',
+            'error': 'fa-times-circle',
+            'warning': 'fa-exclamation-triangle',
+            'info': 'fa-info-circle'
+        };
+        const icon = iconMap[type] || 'fa-info-circle';
+
+        toast.innerHTML = `
+            <i class="fas ${icon} toast-icon"></i>
+            <span>${message}</span>
+            <button class="toast-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="toast-progress"></div>
+        `;
+
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Handle messages on page load
+    document.addEventListener('DOMContentLoaded', function() {
+    const messages = document.querySelectorAll('.alert-message');  // Match class
+    
+    messages.forEach(message => {
+        const text = message.dataset.message;
+        const type = message.dataset.type.split(' ')[0] || 'info';  // Handle tags
+        
+        const typeMap = {
+            'success': 'success',
+            'error': 'error',
+            'warning': 'warning',
+            'info': 'info'
+        };
+        
+        showToast(text, typeMap[type] || 'info');  // Use standard function
+    });
+});
+
+    // Photo upload script
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.querySelector('input[type="file"]');
+        const profilePhoto = document.querySelector('.profile-photo, .profile-photo-placeholder');
+
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (profilePhoto.tagName === 'IMG') {
+                        profilePhoto.src = e.target.result;
+                    } else {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'profile-photo';
+                        img.alt = 'Profile Photo';
+                        profilePhoto.parentNode.replaceChild(img, profilePhoto);
+                    }
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+    });
+</script>
+{% endblock %}

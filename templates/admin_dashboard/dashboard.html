@@ -1,0 +1,293 @@
+{% extends 'admin_dashboard/layouts/base.html' %}
+
+{% block title %}Dashboard - Home Fresh Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Dashboard Layout */
+    .dashboard-container {
+        padding: 2rem;
+        background: var(--bg-light);
+        min-height: 100vh;
+    }
+
+    /* Header Styles */
+    .dashboard-header {
+        margin-bottom: 2rem;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        animation: fadeUp 0.6s ease forwards;
+    }
+
+    .header-title {
+        font-size: 1.75rem;
+        color: var(--text-dark);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .header-subtitle {
+        color: #6c757d;
+        font-size: 0.95rem;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stats-card {
+        padding: 1.5rem;
+        border-radius: 15px;
+        background: white;
+        transition: all 0.3s ease;
+        animation: fadeUp 0.6s ease forwards;
+    }
+
+    .stats-card:nth-child(1) { animation-delay: 0.1s; }
+    .stats-card:nth-child(2) { animation-delay: 0.2s; }
+    .stats-card:nth-child(3) { animation-delay: 0.3s; }
+    .stats-card:nth-child(4) { animation-delay: 0.4s; }
+
+    .stats-card .icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .stats-card .value {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .stats-card .label {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    /* Recent Activity */
+    .activity-section {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        animation: fadeUp 0.6s ease forwards;
+        animation-delay: 0.5s;
+    }
+
+    .activity-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .activity-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        margin-bottom: 0.5rem;
+    }
+
+    .activity-item:hover {
+        background: var(--bg-light);
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        background: var(--accent-color);
+        color: white;
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-title {
+        font-weight: 500;
+        color: var(--text-dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .activity-time {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    /* Action Buttons */
+    .action-buttons .btn {
+        padding: 0.6rem 1.2rem;
+        border-radius: 10px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-export {
+        background: var(--bg-light);
+        color: var(--text-dark);
+        border: 1px solid #e9ecef;
+    }
+
+    .btn-export:hover {
+        background: #e9ecef;
+        transform: translateY(-2px);
+    }
+
+    .btn-add-product {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+    }
+
+    .btn-add-product:hover {
+        background: var(--secondary-color);
+        transform: translateY(-2px);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .activity-item {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .activity-icon {
+            margin-right: 0;
+            margin-bottom: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="header-title">Dashboard</h1>
+                <p class="header-subtitle">Welcome back, Admin!</p>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-export me-2">
+                    <i class="fas fa-download"></i>
+                    Export Report
+                </button>
+                <button class="btn btn-add-product">
+                    <i class="fas fa-plus"></i>
+                    Add Product
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stats-card">
+            <div class="icon">
+                <i class="fas fa-shopping-bag"></i>
+            </div>
+            <div class="value">2,451</div>
+            <div class="label">Total Orders</div>
+        </div>
+        <div class="stats-card">
+            <div class="icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="value">1,257</div>
+            <div class="label">Active Customers</div>
+        </div>
+        <div class="stats-card">
+            <div class="icon">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="value">384</div>
+            <div class="label">Products</div>
+        </div>
+        <div class="stats-card">
+            <div class="icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="value">$12.5k</div>
+            <div class="label">Revenue</div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="activity-section">
+        <div class="activity-header">
+            <h2 class="activity-title">Recent Activity</h2>
+            <a href="#" class="text-decoration-none">View All</a>
+        </div>
+        <div class="activity-list">
+            <div class="activity-item slide-in">
+                <div class="activity-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">New order received</div>
+                    <div class="activity-time">5 minutes ago</div>
+                </div>
+            </div>
+            <div class="activity-item slide-in">
+                <div class="activity-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">New customer registered</div>
+                    <div class="activity-time">1 hour ago</div>
+                </div>
+            </div>
+            <div class="activity-item slide-in">
+                <div class="activity-icon">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Product stock updated</div>
+                    <div class="activity-time">2 hours ago</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

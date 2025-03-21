@@ -1,0 +1,49 @@
+{% extends 'home/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar for buyer dashboard -->
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{% url 'buyer:profile' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                    <i class="fas fa-user"></i> Profile
+                </a>
+                <a href="{% url 'buyer:manage_addresses' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'manage_addresses' %}active{% endif %}">
+                    <i class="fas fa-map-marker-alt"></i> Addresses
+                </a>
+                <a href="{% url 'buyer:wishlist' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'wishlist' %}active{% endif %}">
+                    <i class="fas fa-heart"></i> Wishlist
+                </a>
+                <a href="{% url 'buyer:cart' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'cart' %}active{% endif %}">
+                    <i class="fas fa-shopping-cart"></i> Cart
+                </a>
+                <a href="{% url 'buyer:order_history' %}" class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'order_history' %}active{% endif %}">
+                    <i class="fas fa-box"></i> Orders
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main content area -->
+        <div class="col-md-9">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            {% block buyer_content %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add any common JavaScript for the buyer module here
+</script>
+{% endblock %}

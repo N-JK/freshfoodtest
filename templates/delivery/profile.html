@@ -1,0 +1,475 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* Add Bootstrap form-control class to all form inputs */
+    form input[type="text"],
+    form input[type="email"],
+    form input[type="password"],
+    form textarea {
+        @extend .form-control;
+    }
+    
+    /* Style file input */
+    form input[type="file"] {
+        @extend .form-control;
+    }
+
+    .profile-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.95)),
+                    url('{{ MEDIA_URL }}image/delivery-pattern.jpg');
+        background-size: cover;
+        background-position: center;
+        padding: 2rem;
+    }
+
+    .profile-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-photo {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        display: block;
+        object-fit: cover;
+        border: 4px solid #4F46E5;
+    }
+
+    .profile-name {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .profile-role {
+        text-align: center;
+        color: #64748b;
+        margin-bottom: 1.5rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 15px;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #4F46E5;
+    }
+
+    .stat-label {
+        color: #64748b;
+        font-size: 0.875rem;
+    }
+
+    .info-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .info-label {
+        color: #64748b;
+        width: 120px;
+    }
+
+    .info-value {
+        color: #1e293b;
+        font-weight: 500;
+    }
+
+    .performance-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .rating-section {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .rating-value {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #4F46E5;
+    }
+
+    .rating-stars {
+        color: #fbbf24;
+        font-size: 1.5rem;
+        margin: 1rem 0;
+    }
+
+    .progress-item {
+        margin-bottom: 1rem;
+    }
+
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-bar {
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: #4F46E5;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .btn-edit-profile {
+        width: 100%;
+        padding: 0.75rem;
+        background: #4F46E5;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 500;
+        margin-top: 1rem;
+        text-decoration: none;
+        display: block;
+    }
+
+    .btn-edit-profile:hover {
+        background: #4338CA;
+        transform: translateY(-2px);
+    }
+
+    .password-form {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .toggle-password {
+        cursor: pointer;
+    }
+
+    .toggle-password:hover {
+        background-color: #f8f9fa;
+    }
+
+    .password-strength {
+        height: 5px;
+        transition: all 0.3s ease;
+        border-radius: 3px;
+    }
+
+    .strength-weak {
+        background-color: #dc3545;
+        width: 30%;
+    }
+
+    .strength-medium {
+        background-color: #ffc107;
+        width: 60%;
+    }
+
+    .strength-strong {
+        background-color: #198754;
+        width: 100%;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: #344767;
+    }
+
+    .input-group {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .input-group .form-control {
+        border-right: none;
+    }
+
+    .input-group .btn {
+        border-left: none;
+        border-color: #ced4da;
+    }
+
+    .input-group .form-control:focus + .btn {
+        border-color: #F28123;
+    }
+
+    .btn-primary {
+        background-color: #F28123;
+        border-color: #F28123;
+    }
+
+    .btn-primary:hover {
+        background-color: #e67316;
+        border-color: #e67316;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-container">
+        <div class="profile-card">
+            {% if delivery_boy.profile_photo %}
+                <img src="{{ delivery_boy.profile_photo.url }}" alt="{{ delivery_boy.name }}" class="profile-photo">
+            {% else %}
+                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px;">
+                    <i class="fas fa-user fa-4x text-white"></i>
+                </div>
+            {% endif %}
+            <h2 class="profile-name">{{ delivery_boy.name }}</h2>
+            <p class="profile-role">Delivery Partner</p>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">{{ delivery_boy.total_deliveries }}</div>
+                    <div class="stat-label">Total Deliveries</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ delivery_boy.completion_rate }}%</div>
+                    <div class="stat-label">Completion Rate</div>
+                </div>
+            </div>
+
+            <h3><i class="fas fa-user"></i> Personal Information</h3>
+            <ul class="info-list">
+                <li class="info-item">
+                    <span class="info-label">Full Name</span>
+                    <span class="info-value">{{ delivery_boy.name }}</span>
+                </li>
+                <li class="info-item">
+                    <span class="info-label">Email</span>
+                    <span class="info-value">{{ delivery_boy.email }}</span>
+                </li>
+                <li class="info-item">
+                    <span class="info-label">Phone</span>
+                    <span class="info-value">{{ delivery_boy.phone }}</span>
+                </li>
+                <li class="info-item">
+                    <span class="info-label">Joined</span>
+                    <span class="info-value">{{ delivery_boy.created_at|date:"M d, Y" }}</span>
+                </li>
+            </ul>
+
+            <a href="{% url 'delivery:edit_profile' %}" class="btn-edit-profile">
+                <i class="fas fa-edit"></i> Edit Profile
+            </a>
+        </div>
+
+        <div class="profile-section mb-4">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-lock"></i>
+                    Change Password
+                </h3>
+            </div>
+            <div class="section-content">
+                <form action="{% url 'delivery:change_password' %}" method="POST" class="password-form">
+                    {% csrf_token %}
+                    
+                    {% if messages %}
+                    <div class="messages mb-4">
+                        {% for message in messages %}
+                        <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="current_password">Current Password</label>
+                        <div class="input-group">
+                            <input type="password" id="current_password" name="current_password" class="form-control" required>
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="current_password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" for="new_password">New Password</label>
+                        <div class="input-group">
+                            <input type="password" id="new_password" name="new_password" class="form-control" required 
+                                   minlength="8" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" 
+                                   title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters">
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="new_password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength mt-2" id="password-strength"></div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label" for="confirm_password">Confirm New Password</label>
+                        <div class="input-group">
+                            <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="confirm_password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-save me-2"></i>Change Password
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="performance-card">
+            <div class="rating-section">
+                <div class="rating-value">4.8</div>
+                <div class="rating-stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                </div>
+                <div class="rating-label">Average Rating</div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span>On-Time Delivery</span>
+                        <span>95%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 95%"></div>
+                    </div>
+                </div>
+
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span>Customer Satisfaction</span>
+                        <span>92%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 92%"></div>
+                    </div>
+                </div>
+
+                <div class="progress-item">
+                    <div class="progress-header">
+                        <span>Order Accuracy</span>
+                        <span>98%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 98%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">25min</div>
+                    <div class="stat-label">Avg. Delivery Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">150km</div>
+                    <div class="stat-label">Total Distance</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle password visibility
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-target');
+            const input = document.getElementById(targetId);
+            const icon = this.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    });
+
+    // Password strength indicator
+    const newPassword = document.getElementById('new_password');
+    const strengthIndicator = document.getElementById('password-strength');
+    
+    newPassword.addEventListener('input', function() {
+        const password = this.value;
+        let strength = 0;
+        
+        if (password.match(/[a-z]/)) strength++;
+        if (password.match(/[A-Z]/)) strength++;
+        if (password.match(/[0-9]/)) strength++;
+        if (password.length >= 8) strength++;
+        
+        strengthIndicator.className = 'password-strength mt-2';
+        if (strength === 0) {
+            strengthIndicator.style.width = '0';
+        } else if (strength <= 2) {
+            strengthIndicator.classList.add('strength-weak');
+        } else if (strength === 3) {
+            strengthIndicator.classList.add('strength-medium');
+        } else {
+            strengthIndicator.classList.add('strength-strong');
+        }
+    });
+
+    // Confirm password validation
+    const confirmPassword = document.getElementById('confirm_password');
+    const form = document.querySelector('.password-form');
+    
+    form.addEventListener('submit', function(e) {
+        if (newPassword.value !== confirmPassword.value) {
+            e.preventDefault();
+            alert('Passwords do not match!');
+        }
+    });
+});
+</script>

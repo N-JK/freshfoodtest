@@ -1,0 +1,340 @@
+{% extends 'seller/layouts/base.html' %}
+{% block title %}Dashboard - {{ seller.supplier.business_name }}{% endblock %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+.dashboard {
+    min-height: 100vh;
+    background: linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.95));
+    padding: 2rem;
+}
+
+.welcome-section {
+    margin-bottom: 2rem;
+}
+
+.welcome-title {
+    font-size: 1.75rem;
+    color: #1e293b;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-subtitle {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.stat-title {
+    color: #64748b;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.stat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.total-products {
+    background: linear-gradient(135deg, #4F46E5, #6366F1);
+}
+
+.active-products {
+    background: linear-gradient(135deg, #F28123, #FB923C);
+}
+
+.pending-approvals {
+    background: linear-gradient(135deg, #EAB308, #FDE047);
+}
+
+.low-stock {
+    background: linear-gradient(135deg, #EF4444, #FCA5A5);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.stat-change {
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.positive-change {
+    color: #22c55e;
+}
+
+.negative-change {
+    color: #ef4444;
+}
+
+.notifications-section {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.notification-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 10px;
+    background: #f8fafc;
+    transition: background-color 0.3s ease;
+}
+
+.notification-item:hover {
+    background: #f1f5f9;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e2e8f0;
+    color: #64748b;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 500;
+    color: #1e293b;
+    margin-bottom: 0.25rem;
+}
+
+.notification-text {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+}
+
+.notification-time {
+    color: #94a3b8;
+    font-size: 0.75rem;
+}
+
+.chart-section {
+    margin-top: 2rem;
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.date-display {
+    text-align: right;
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard {
+        padding: 1rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="date-display">
+        <i class="fas fa-calendar-alt"></i>
+        <span id="current-date"></span>
+    </div>
+
+    <div class="welcome-section">
+        <h1 class="welcome-title">Welcome, {{ request.user.seller.business_name }}</h1>
+        <p class="welcome-subtitle">Here's what's happening with your store today</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">TOTAL PRODUCTS</span>
+                <div class="stat-icon total-products">
+                    <i class="fas fa-box"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ total_products }}</div>
+            <div class="stat-change positive-change">
+                <i class="fas fa-arrow-up"></i>
+                <span>4.5% from last week</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">ACTIVE PRODUCTS</span>
+                <div class="stat-icon active-products">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ active_products }}</div>
+            <div class="stat-change positive-change">
+                <i class="fas fa-arrow-up"></i>
+                <span>2.1% from last week</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">PENDING APPROVALS</span>
+                <div class="stat-icon pending-approvals">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ pending_approvals }}</div>
+            <div class="stat-change negative-change">
+                <i class="fas fa-arrow-down"></i>
+                <span>1.5% from last week</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">LOW STOCK ITEMS</span>
+                <div class="stat-icon low-stock">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+            </div>
+            <div class="stat-value">{{ low_stock_items }}</div>
+            <div class="stat-change negative-change">
+                <i class="fas fa-arrow-down"></i>
+                <span>3.2% from last week</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="notifications-section">
+        <div class="section-header">
+            <h2 class="section-title">Recent Notifications</h2>
+            <a href="#" class="text-primary">View All</a>
+        </div>
+
+        <div class="notification-list">
+            {% for notification in notifications %}
+            <div class="notification-item">
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="notification-content">
+                    <h3 class="notification-title">{{ notification.title }}</h3>
+                    <p class="notification-text">{{ notification.text }}</p>
+                    <span class="notification-time">{{ notification.created_at|timesince }} ago</span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="notification-item">
+                <div class="notification-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="notification-content">
+                    <h3 class="notification-title">All Caught Up!</h3>
+                    <p class="notification-text">You're up to date with all your notifications.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set current date with proper formatting
+    const dateDisplay = document.getElementById('current-date');
+    const now = new Date();
+    const options = { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    };
+    dateDisplay.textContent = now.toLocaleDateString('en-US', options);
+
+    // Add animation to stat cards
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translateY(-5px)';
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}

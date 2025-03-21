@@ -1,0 +1,145 @@
+<!-- View Product Modal -->
+<div class="modal fade" id="viewProductModal" tabindex="-1" aria-labelledby="viewProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="viewProductModalLabel">
+                    <i class="fas fa-eye me-2"></i>View Product Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <!-- Product Image -->
+                    <div class="col-md-4">
+                        <div class="product-image-container">
+                            <img id="viewProductImage" src="" alt="Product Image" class="img-fluid rounded">
+                        </div>
+                    </div>
+
+                    <!-- Product Details -->
+                    <div class="col-md-8">
+                        <div class="product-details">
+                            <h4 id="viewProductName" class="mb-3"></h4>
+                            
+                            <div class="detail-row mb-3">
+                                <span class="badge bg-primary" id="viewProductCategory"></span>
+                                <span class="badge bg-success ms-2" id="viewProductStatus"></span>
+                            </div>
+
+                            <div class="detail-item mb-3">
+                                <h6 class="text-muted mb-2">Description</h6>
+                                <p id="viewProductDescription" class="mb-0"></p>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-sm-6">
+                                    <div class="detail-item">
+                                        <h6 class="text-muted mb-2">Price</h6>
+                                        <p class="text-primary fw-bold mb-0">₹<span id="viewProductPrice"></span></p>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <div class="detail-item">
+                                        <h6 class="text-muted mb-2">Stock</h6>
+                                        <p class="mb-0"><span id="viewProductStock"></span> units</p>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="detail-item">
+                                        <h6 class="text-muted mb-2">Supplier</h6>
+                                        <p id="viewProductSupplier" class="mb-0"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Details -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="card-title text-primary mb-3">
+                                    <i class="fas fa-chart-line me-2"></i>Product Statistics
+                                </h6>
+                                <div class="row g-3">
+                                    <div class="col-sm-4">
+                                        <div class="stat-item">
+                                            <h6 class="text-muted">Total Sales</h6>
+                                            <p class="h4 mb-0" id="viewProductTotalSales">0</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="stat-item">
+                                            <h6 class="text-muted">Revenue</h6>
+                                            <p class="h4 mb-0">₹<span id="viewProductRevenue">0</span></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="stat-item">
+                                            <h6 class="text-muted">Rating</h6>
+                                            <div class="d-flex align-items-center">
+                                                <span class="h4 mb-0 me-2" id="viewProductRating">0</span>
+                                                <div class="stars">
+                                                    <i class="fas fa-star text-warning"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Close
+                </button>
+                <button type="button" class="btn btn-primary" onclick="editProduct(currentProductId)">
+                    <i class="fas fa-edit me-2"></i>Edit Product
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.product-image-container {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.product-details .detail-item h6 {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-item {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stars {
+    display: inline-flex;
+    align-items: center;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+}
+
+.badge {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+</style>

@@ -57,8 +57,5 @@ jobs:
           python3 manage.py migrate
 
           # Start the Django development server
-          nohup python3 manage.py runserver 0.0.0.0:8000 &
+          python3 manage.py runserver 0.0.0.0:8000 &
 
-          # Optionally, clean up any unnecessary files
-          find . -name "*.pyc" -delete
-          find . -name "__pycache__" -delete

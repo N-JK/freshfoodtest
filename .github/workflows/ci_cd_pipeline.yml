@@ -32,6 +32,7 @@ jobs:
           git clone https://github.com/N-JK/freshfoodtest.git .
 
           # Activate the virtual environment
+          python3 -m venv venv
           source venv/bin/activate
 
           # Install dependencies

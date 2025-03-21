@@ -200,7 +200,9 @@ ACCOUNT_SIGNUP_PASSWORD_ENTER_TWICE = True
 ACCOUNT_SIGNUP_REDIRECT_URL = 'home:home'
 ACCOUNT_EMAIL_SUBJECT_PREFIX = 'Fresh Food - '
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http'  # Add this for development
-
+ACCOUNT_RATE_LIMITS = {
+    'login_failed': '5/300s',  # 5 attempts per 300 seconds
+}
 # Add these settings for password reset
 PASSWORD_RESET_TIMEOUT = 259200  # 3 days in seconds
 ACCOUNT_PASSWORD_RESET_TIMEOUT = 259200  # 3 days in seconds

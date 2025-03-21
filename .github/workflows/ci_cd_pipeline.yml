@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - master  # Adjust this to your
+      - master  # Adjust this to your main branch
 
 jobs:
   deploy:
@@ -29,8 +29,14 @@ jobs:
           # Navigate to the project directory
           cd /home/ubuntu/FRESH_FOOD_FINAL
 
+          # Check available disk space
+          df -h
+
           # Remove old code, including hidden files
           rm -rf .[^.]* *
+
+          # Ensure the directory is owned by the correct user
+          sudo chown -R ubuntu:ubuntu /home/ubuntu/FRESH_FOOD_FINAL
 
           # Pull the latest code from the repository
           git clone https://github.com/N-JK/freshfoodtest.git .
